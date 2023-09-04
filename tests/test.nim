@@ -4,6 +4,7 @@
 
 import unittest
 import osc
+import std/times
 
 suite "Parsing OSC Messages":
 
@@ -70,3 +71,33 @@ suite "Parsing OSC Messages":
     check(message.params[2].strVal == "ABC")
     check(message.params[3].kind == OscType.oscBlob)
     check(message.params[3].blobVal == "stuff\x00\x00\x00")
+
+  test "some non-standard types":
+    const DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS =
+        "/SYNC\x00\x00\x00" &
+        "T" &  # True
+        "F" &  # False
+        "N" &  # Nil
+        "[]th\x00" &  # Empty array
+        "\x00\x00\x00\x00\x00\x00\x00\x00" &
+        "\x00\x00\x00\xe8\xd4\xa5\x10\x00" # 1000000000000
+    let message = parseMessage(DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS)
+    check(message.address == "/SYNC")
+    check(message.params.len == 6)
+    check(message.params[0].kind == OscType.oscTrue)
+    check(message.params[1].kind == OscType.oscFalse)
+    check(message.params[2].kind == OscType.oscNil)
+
+    # TODO: Implement those
+    when false:
+        check(message.params[3].kind == OscType.oscArray)
+        check(message.params[3].arrayVal == @[])
+
+        # Python:
+        # self.assertEqual((datetime(1900, 1, 1, 0, 0, 0), 0), msg.params[4])
+        let expectedDate = dateTime(1900, mJan, 1, zone = utc())
+        check(message.params[4].kind == OscType.oscTime)
+        check(message.params[4].timeVal == expectedDate)
+
+        check(message.params[5].kind == OscType.oscBigInt)
+        check(message.params[5].bigIntVal == 1000000000000)
