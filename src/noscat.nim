@@ -11,7 +11,7 @@
 import std/net
 import std/strformat
 import std/strutils
-import osc
+import nosc
 import os
 
 let pc = paramCount()

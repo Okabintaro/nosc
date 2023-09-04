@@ -3,8 +3,8 @@
 # https://github.com/attwad/python-osc/blob/master/pythonosc/test/test_osc_message.py
 
 import unittest
-import osc
-import std/times
+import nosc
+# import std/times
 
 suite "Parsing OSC Messages":
 
