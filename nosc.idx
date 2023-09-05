@@ -1,0 +1,16 @@
+nimTitle	nosc	nosc.html	module src/nosc		0
+nim	OscParseError	nosc.html#OscParseError	object OscParseError		7
+nim	oscFloat	nosc.html#oscFloat	OscType.oscFloat		10
+nim	oscInt	nosc.html#oscInt	OscType.oscInt		10
+nim	oscString	nosc.html#oscString	OscType.oscString		10
+nim	oscBlob	nosc.html#oscBlob	OscType.oscBlob		10
+nim	oscTrue	nosc.html#oscTrue	OscType.oscTrue		10
+nim	oscFalse	nosc.html#oscFalse	OscType.oscFalse		10
+nim	oscNil	nosc.html#oscNil	OscType.oscNil		10
+nim	oscArray	nosc.html#oscArray	OscType.oscArray		10
+nim	oscTime	nosc.html#oscTime	OscType.oscTime		10
+nim	oscBigInt	nosc.html#oscBigInt	OscType.oscBigInt		10
+nim	OscType	nosc.html#OscType	enum OscType		10
+nim	OscValue	nosc.html#OscValue	object OscValue		21
+nim	OscMessage	nosc.html#OscMessage	object OscMessage		33
+nim	parseMessage	nosc.html#parseMessage,string	proc parseMessage(data: string): OscMessage		74
