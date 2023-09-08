@@ -5,7 +5,6 @@
 import unittest
 import nosc
 
-# TODO: Refactor tests to use % for cleaner checks
 suite "Parsing OSC Messages":
   test "switch rotates (float=?)":
     const DGRAM_KNOB_ROTATES =
@@ -13,9 +12,7 @@ suite "Parsing OSC Messages":
         ",f\x00\x00" &
         ">xca=q"
     let message = parseMessage(DGRAM_KNOB_ROTATES)
-    check(message.address == "/FB")
-    check(message.params.len == 1)
-    check(message.params[0].kind == OscType.oscFloat)
+    check(message == OscMessage(address: "/FB", params: @[%0.2425666004419327]))
 
   test "switch goes off (float=0.0)":
     const DGRAM_SWITCH_GOES_OFF =
@@ -23,10 +20,7 @@ suite "Parsing OSC Messages":
         ",f\x00\x00" &
         "\x00\x00\x00\x00"
     let message = parseMessage(DGRAM_SWITCH_GOES_OFF)
-    check(message.address == "/SYNC")
-    check(message.params.len == 1)
-    check(message.params[0].kind == OscType.oscFloat)
-    check(message.params[0].floatVal == 0.0)
+    check(message == OscMessage(address: "/SYNC", params: @[%0.0]))
 
   test "switch goes on (float=0.5)":
       const DGRAM_SWITCH_GOES_ON = 
@@ -34,16 +28,12 @@ suite "Parsing OSC Messages":
           ",f\x00\x00" &
           "?\x00\x00\x00"
       let message = parseMessage(DGRAM_SWITCH_GOES_ON)
-      check(message.address == "/SYNC")
-      check(message.params.len == 1)
-      check(message.params[0].kind == OscType.oscFloat)
-      check(message.params[0].floatVal == 0.5)
+      check(message == OscMessage(address: "/SYNC", params: @[%0.5]))
 
   test "no parameters":
       const DGRAM_NO_PARAMS = "/SYNC\x00\x00\x00"
       let message = parseMessage(DGRAM_NO_PARAMS)
-      check(message.address == "/SYNC")
-      check(message.params.len == 0)
+      check(message == OscMessage(address: "/SYNC", params: @[]))
 
   test "invalid message":
       const GARBAGE = "AAANO\x00\x00\x00"
@@ -60,16 +50,7 @@ suite "Parsing OSC Messages":
         "\x00\x00\x00\x08stuff\x00\x00\x00" # b"stuff\x00\x00\x00"
 
     let message = parseMessage(DGRAM_ALL_STANDARD_TYPES_OF_PARAMS)
-    check(message.address == "/SYNC")
-    check(message.params.len == 4)
-    check(message.params[0].kind == OscType.oscInt)
-    check(message.params[0].intVal == 3)
-    check(message.params[1].kind == OscType.oscFloat)
-    check(message.params[1].floatVal == 2.0)
-    check(message.params[2].kind == OscType.oscString)
-    check(message.params[2].strVal == "ABC")
-    check(message.params[3].kind == OscType.oscBlob)
-    check(message.params[3].blobVal == "stuff\x00\x00\x00")
+    check(message == OscMessage(address: "/SYNC", params: @[%3, %2.0, %"ABC", OscValue(kind: oscBlob, blobVal: "stuff\x00\x00\x00")]))
 
   test "some non-standard types":
     const DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS =
@@ -83,8 +64,8 @@ suite "Parsing OSC Messages":
     let message = parseMessage(DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS)
     check(message.address == "/SYNC")
     check(message.params.len == 6)
-    check(message.params[0].kind == OscType.oscTrue)
-    check(message.params[1].kind == OscType.oscFalse)
+    check(message.params[0] == %true)
+    check(message.params[1] == %false)
     check(message.params[2].kind == OscType.oscNil)
     check(message.params[3].kind == OscType.oscArray)
     check(message.params[3].arrayVal.len == 0)
