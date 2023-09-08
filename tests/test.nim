@@ -4,6 +4,8 @@
 
 import unittest
 import nosc
+import std/times
+import pretty
 
 suite "Parsing OSC Messages":
   test "switch rotates (float=?)":
@@ -70,12 +72,10 @@ suite "Parsing OSC Messages":
     check(message.params[3].kind == OscType.oscArray)
     check(message.params[3].arrayVal.len == 0)
 
-    when false:
-      # Python:
-      # self.assertEqual((datetime(1900, 1, 1, 0, 0, 0), 0), msg.params[4])
-      let expectedDate = dateTime(1900, mJan, 1, zone = utc())
-      check(message.params[4].kind == OscType.oscTime)
-      check(message.params[4].timeVal == expectedDate)
+    # Python: self.assertEqual((datetime(1900, 1, 1, 0, 0, 0), 0), msg.params[4])
+    let expectedTime = dateTime(1900, mJan, 1, zone = utc()).toTime().toOscTime()
+    check(message.params[4].kind == OscType.oscTime)
+    check(message.params[4].timeVal == expectedTime)
 
     check(message.params[5].kind == OscType.oscBigInt)
     check(message.params[5].bigIntVal == 1000000000000)
@@ -100,6 +100,27 @@ suite "Parsing OSC Messages":
       check(message.params[2].kind == OscType.oscArray)
       let expected = %[%[2], %[%3, %[%"GHI"]]]
       check(message.params[2] == expected)
+  
+  test "parse timestamp with a fractional part":
+    const DGRAM_TIMESTAMP_WITH_FRACTIONAL_PART = 
+      "/SYNC\x00\x00\x00" &
+      ",t\x00\x00" &
+      "\xe8\xa6\x01/\xc0\x8d\xa0\x00"
+    let msg = parseMessage(DGRAM_TIMESTAMP_WITH_FRACTIONAL_PART)
+    let oscTime = msg.params[0].timeVal
+    let parsedTime = oscTime.toTime()
+    print oscTime
+    print parsedTime
+    let expectedTime = 1694204617.8287973.fromUnixFloat()
+    check(parsedTime == expectedTime)
+    
+  test "parse timestamp that is immediate special value":
+    const DGRAM_TIMESTAMP_IMMEDIATE = 
+      "/SYNC\x00\x00\x00" &
+      ",t\x00\x00" &
+      "\x00\x00\x00\x00\x00\x00\x00\x01" # 
+    let msg = parseMessage(DGRAM_TIMESTAMP_IMMEDIATE)
+    check(msg.params[0] == %OscTimeImmediate)
 
   test "ignore unknown parameter":
     const DGRAM_UNKNOWN_PARAM_TYPE = 

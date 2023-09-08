@@ -6,4 +6,4 @@ license     = "MIT"
 srcDir = "src"
 bin    = @["noscat"]
 
-requires "nim >= 1.2.2"
+requires "nim >= 1.2.2", "pretty"
