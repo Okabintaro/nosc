@@ -1,7 +1,7 @@
 ## This module implements parsing of OSC messages.
 
 import std/endians
-import std/times
+import std/parseutils
 
 type
   OscParseError* = object of CatchableError
@@ -20,15 +20,15 @@ type
     oscBigInt,
   OscValue* = object
     case kind*: OscType
-    of oscInt: intVal*: int
-    of oscFloat: floatVal*: float
+    of oscInt: intVal*: int32
+    of oscFloat: floatVal*: float32
     of oscString: strVal*: string
     of oscBlob: blobVal*: string
     of oscTrue: discard
     of oscFalse: discard
     of oscNil: discard
     of oscArray: arrayVal*: seq[OscValue]
-    of oscTime: timeVal*: DateTime
+    of oscTime: timeVal*: int
     of oscBigInt: bigIntVal*: int64
   OscMessage* = object
     address*: string
@@ -40,7 +40,10 @@ proc `%`*(b: bool): OscValue =
     return OscValue(kind: oscTrue)
   else:
     return OscValue(kind: oscFalse)
-proc `%`*(v: int): OscValue = OscValue(kind: oscInt, intVal: v)
+proc `%`*(v: int): OscValue = OscValue(kind: oscInt, intVal: v.int32)
+proc `%`*(v: int32): OscValue = OscValue(kind: oscInt, intVal: v)
+proc `%`*(v: int64): OscValue = OscValue(kind: oscBigInt, bigIntVal: v)
+proc `%`*(v: float32): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: float): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: string): OscValue = OscValue(kind: oscString, strVal: v)
 proc `%`*[T](elements: openArray[T]): OscValue =
@@ -78,19 +81,33 @@ proc `==`*(a, b: OscValue): bool =
       return a.bigIntVal == b.bigIntVal
 
 
-proc parseString(payload: string, val: var string): int =
-  ## Parse OSC String, returning the length of the \0 padded string.
-  var strLen = 0
-  for c in payload:
-      if c == '\0':
-        break
-      strLen += 1
-  val = payload[0..<strLen]
-  let strPadLen = if strLen %% 4 != 0 :strLen + (4 - strLen %% 4) else: strLen
-  return strPadLen
+func pad4(length: int): int {.inline} =
+  ## Pad the given length to the next multiple of 4.
+  if length %% 4 != 0:
+    return length + (4 - length %% 4)
+  else:
+    return length
 
-proc parsePayload(payload: string, typeTags: string, i: var int, j: var int, depth: int = 0): seq[OscValue] =
+proc readString(payload: openArray[char], i: var int): string =
+  ## Parse OSC String, returning the length of the \0 padded string.
+  # TODO: See if we can parse without allocating the string in parseUntil
+  # https://nim-lang.org/docs/manual_experimental.html#view-types
+  let len = payload.parseUntil(result, '\0')
+  i += pad4(len)
+
+# TODO: Type constraint T to 32bit types?
+proc readBe32[T](payload: openArray[char], i: var int): T {.inline} =
+  bigEndian32(cast[cstring](result.addr), cast[cstring](payload))
+  i += 4
+
+# TODO: Type constraint T to 64bit types
+proc readBe64[T](payload: openArray[char], i: var int): T {.inline} =
+  bigEndian64(cast[cstring](result.addr), cast[cstring](payload))
+  i += 8
+
+proc readArguments(payload: string, typeTags: string, i: var int, j: var int, depth: int = 0): seq[OscValue] =
   ## Parse the payload of an OSC message.
+  ## Here payload and typeTags are "streams" with i, j as the current position.
   ## Raise an OSCParseError if the data is invalid.
   var params: seq[OscValue] = @[]
   while j < typeTags.len:
@@ -101,30 +118,17 @@ proc parsePayload(payload: string, typeTags: string, i: var int, j: var int, dep
       of ',':
         continue
       of 'f':
-        let bytes = payload[i..<i+4]
-        var tmp: float32 = 0
-        bigEndian32(cast[cstring](tmp.addr), cast[cstring](bytes.cstring))
-        value = OscValue(kind: oscFloat, floatVal: tmp)
-        i += 4
+        value = OscValue(kind: oscFloat, floatVal: readBe32[float32](payload[i..<i+4], i))
       of 'i':
-        let bytes = payload[i..<i+4]
-        var tmp: int32 = 0
-        bigEndian32(cast[cstring](tmp.addr), cast[cstring](bytes.cstring))
-        value = OscValue(kind: oscInt, intVal: tmp)
-        i += 4
+        value = OscValue(kind: oscInt, intVal: readBe32[int32](payload[i..<i+4], i))
       of 's':
-        var val: string
-        i += parseString(payload[i..<payload.len], val)
-        value = OscValue(kind: oscString, strVal: val)
+        value = OscValue(kind: oscString, strVal: readString(payload[i..<payload.len], i))
       of 'b':
-        let bytes = payload[i..<i+4]
-        var nBytes: int32 = 0
-        bigEndian32(cast[cstring](nBytes.addr), cast[cstring](bytes.cstring))
-        i += 4
-        let val: string = payload[i..<i+nBytes]
+        var length = readBe32[int32](payload[i..<i+4], i)
+        let val: string = payload[i..<i+length]
         value = OscValue(kind: oscBlob, blobVal: val)
-        let blobValLen = if nBytes %% 4 != 0 :nBytes + (4 - nBytes %% 4) else: nBytes
-        i += blobValLen
+        # TODO: Make template/proc for this
+        i += pad4(length)
       of 'T':
         value = OscValue(kind: oscTrue)
       of 'F':
@@ -132,7 +136,7 @@ proc parsePayload(payload: string, typeTags: string, i: var int, j: var int, dep
       of 'N':
         value = OscValue(kind: oscNil)
       of '[':
-        let arr = parsePayload(payload, typeTags, i, j, depth+1)
+        let arr = readArguments(payload, typeTags, i, j, depth+1)
         value = OscValue(kind: oscArray, arrayVal: arr)
       of ']':
         if depth == 0:
@@ -140,14 +144,10 @@ proc parsePayload(payload: string, typeTags: string, i: var int, j: var int, dep
         return params
       of 't':
         # TODO: Port the ntp parsing logic from python
-        value = OscValue(kind: oscTime, timeVal: now())
+        value = OscValue(kind: oscTime, timeVal: 0)
         i += 8
       of 'h':
-        let bytes = payload[i..<i+8]
-        var val: int64 = 0
-        bigEndian64(cast[cstring](val.addr), cast[cstring](bytes.cstring))
-        value = OscValue(kind: oscBigInt, bigIntVal: val)
-        i += 8
+        value = OscValue(kind: oscBigInt, bigIntVal: readBe64[int64](payload[i..<i+8], i))
       else:
         # TODO: Add option to surpress this warning or raise error
         echo "Warning: Unknown type tag: ", t
@@ -156,24 +156,21 @@ proc parsePayload(payload: string, typeTags: string, i: var int, j: var int, dep
 
   return params
 
-proc parseMessage*(data: string, ignore_unknown: bool = false): OscMessage {.raises: [OscParseError, Exception].} =
+proc parseMessage*(data: string, ignore_unknown: bool = false): OscMessage {.raises: [OscParseError].} =
   ## Parse the given data into an OscMessage object.
   ## Raise an OSCParseError if the data is invalid.
   if data[0] != '/':
     raise newException(OscParseError, "Invalid address, no `/` in the beginning")
 
-  # Parse address
-  var address: string
-  let addrLen = parseString(data, address)
-  # Read types
-  var typeTags: string
-  let typesLen = parseString(data[addrLen..<data.len], typeTags)
+  # Read address and type tags
+  var k: int = 0
+  var address = readString(data, k)
+  var typeTags = readString(data[k..<data.len], k)
 
   # Parse the payload/values together with the types
   # NOTE: This is kind of ugly passing i and j as var, but it works
   # Need to read some other parsers to see how they do it
-  let dataStart = addrLen + typesLen
   var i, j: int = 0
-  let params = parsePayload(data[dataStart..<data.len], typeTags, i, j)
+  let params = readArguments(data[k..<data.len], typeTags, i, j)
   # echo "Here: ", paramStack[^1]
   result = OscMessage(address: address, params: params)
