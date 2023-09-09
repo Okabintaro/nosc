@@ -1,24 +1,36 @@
 nimTitle	nosc	nosc.html	module src/nosc		0
-nim	OscParseError	nosc.html#OscParseError	object OscParseError		7
-nim	oscFloat	nosc.html#oscFloat	OscType.oscFloat		10
-nim	oscInt	nosc.html#oscInt	OscType.oscInt		10
-nim	oscString	nosc.html#oscString	OscType.oscString		10
-nim	oscBlob	nosc.html#oscBlob	OscType.oscBlob		10
-nim	oscTrue	nosc.html#oscTrue	OscType.oscTrue		10
-nim	oscFalse	nosc.html#oscFalse	OscType.oscFalse		10
-nim	oscNil	nosc.html#oscNil	OscType.oscNil		10
-nim	oscArray	nosc.html#oscArray	OscType.oscArray		10
-nim	oscTime	nosc.html#oscTime	OscType.oscTime		10
-nim	oscBigInt	nosc.html#oscBigInt	OscType.oscBigInt		10
-nim	OscType	nosc.html#OscType	enum OscType		10
-nim	OscValue	nosc.html#OscValue	object OscValue		21
-nim	OscMessage	nosc.html#OscMessage	object OscMessage		33
-nim	`%`	nosc.html#%,bool	proc `%`(b: bool): OscValue		38
-nim	`%`	nosc.html#%,int	proc `%`(v: int): OscValue		43
-nim	`%`	nosc.html#%,float	proc `%`(v: float): OscValue		44
-nim	`%`	nosc.html#%,string	proc `%`(v: string): OscValue		45
-nim	`%`	nosc.html#%,openArray[T]	proc `%`[T](elements: openArray[T]): OscValue		46
-nim	`%`	nosc.html#%,OscValue	proc `%`(v: OscValue): OscValue		50
-nim	`==`	nosc.html#==,OscValue,OscValue	proc `==`(a, b: OscValue): bool		53
-nim	parseMessage	nosc.html#parseMessage,string,bool	proc parseMessage(data: string; ignore_unknown: bool = false): OscMessage		159
-nimgrp	%	nosc.html#%-procs-all	proc		38
+nim	OscParseError	nosc.html#OscParseError	object OscParseError		8
+nim	fractionToNano	nosc.html#fractionToNano,uint32	proc fractionToNano(fraction: uint32): uint32		11
+nim	nanoToFraction	nosc.html#nanoToFraction,uint32	proc nanoToFraction(nanoseconds: uint32): uint32		15
+nim	OscTime	nosc.html#OscTime	object OscTime		19
+nim	OscTimeImmediate	nosc.html#OscTimeImmediate	const OscTimeImmediate		23
+nim	isImmediate	nosc.html#isImmediate,OscTime	proc isImmediate(time: OscTime): bool		25
+nim	toTime	nosc.html#toTime,OscTime	proc toTime(time: OscTime): Time		32
+nim	toOscTime	nosc.html#toOscTime,Time	proc toOscTime(time: Time): OscTime		44
+nim	oscFloat	nosc.html#oscFloat	OscType.oscFloat		50
+nim	oscInt	nosc.html#oscInt	OscType.oscInt		50
+nim	oscString	nosc.html#oscString	OscType.oscString		50
+nim	oscBlob	nosc.html#oscBlob	OscType.oscBlob		50
+nim	oscTrue	nosc.html#oscTrue	OscType.oscTrue		50
+nim	oscFalse	nosc.html#oscFalse	OscType.oscFalse		50
+nim	oscNil	nosc.html#oscNil	OscType.oscNil		50
+nim	oscArray	nosc.html#oscArray	OscType.oscArray		50
+nim	oscTime	nosc.html#oscTime_2	OscType.oscTime		50
+nim	oscBigInt	nosc.html#oscBigInt	OscType.oscBigInt		50
+nim	OscType	nosc.html#OscType	enum OscType		50
+nim	OscValue	nosc.html#OscValue	object OscValue		61
+nim	OscMessage	nosc.html#OscMessage	object OscMessage		73
+nim	`%`	nosc.html#%,bool	proc `%`(b: bool): OscValue		78
+nim	`%`	nosc.html#%,int	proc `%`(v: int): OscValue		83
+nim	`%`	nosc.html#%,int32	proc `%`(v: int32): OscValue		84
+nim	`%`	nosc.html#%,int64	proc `%`(v: int64): OscValue		85
+nim	`%`	nosc.html#%,float32	proc `%`(v: float32): OscValue		86
+nim	`%`	nosc.html#%,float	proc `%`(v: float): OscValue		87
+nim	`%`	nosc.html#%,string	proc `%`(v: string): OscValue		88
+nim	`%`	nosc.html#%,OscTime	proc `%`(v: OscTime): OscValue		89
+nim	`%`	nosc.html#%,Time	proc `%`(v: Time): OscValue		90
+nim	`%`	nosc.html#%,openArray[T]	proc `%`[T](elements: openArray[T]): OscValue		92
+nim	`%`	nosc.html#%,OscValue	proc `%`(v: OscValue): OscValue		96
+nim	`==`	nosc.html#==,OscValue,OscValue	proc `==`(a, b: OscValue): bool		99
+nim	parseMessage	nosc.html#parseMessage,string,bool	proc parseMessage(data: string; ignore_unknown: bool = false): OscMessage		206
+nimgrp	%	nosc.html#%-procs-all	proc		78
