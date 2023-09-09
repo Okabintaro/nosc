@@ -5,5 +5,8 @@ license     = "MIT"
 
 srcDir = "src"
 bin    = @["noscat", "noscsend"]
+installExt = @["nim"]
 
-requires "nim >= 1.2.2"
+requires "nim >= 1.2.2", "nimpy"
+
+
