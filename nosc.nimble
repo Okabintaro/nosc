@@ -4,6 +4,6 @@ description = "Pure Nim implementation of the OSC(Open Sound Control) protocol"
 license     = "MIT"
 
 srcDir = "src"
-bin    = @["noscat"]
+bin    = @["noscat", "noscsend"]
 
 requires "nim >= 1.2.2"
