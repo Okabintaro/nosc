@@ -211,26 +211,20 @@ suite "Writing OSC Messages":
   test "Write String":
     var buffer = newStringOfCap(512)
     let randString = "Hel"
-    let len = buffer.writeString(randString)
+    buffer.addPaddedStr(randString)
     check(buffer.len == 4)
-    check(len == 4)
-
-
-proc rtt(message: OscMessage) {.inline.} =
-  var buffer = newStringOfCap(512)
-  let len = buffer.writeMessage(message)
-  check(len == buffer.len)
-  check(len %% 4 == 0)
-  let parsed = parseMessage(buffer)
-  check(parsed == message)
-
 
 suite "Round Trip Tests":
-  template roundTripTest(name: string, message: OscMessage) =
+  proc roundTripTest(name: string, message: OscMessage) {.inline.} =
     test name & "(round-trip)":
-      rtt(message)
+      var buffer = newStringOfCap(512)
+      let len = buffer.writeMessage(message)
+      check(len == buffer.len)
+      check(len %% 4 == 0)
+      let parsed = parseMessage(buffer)
+      check(parsed == message)
 
-  # Standard Types
+  # # Standard Types
   roundTripTest "Int", OscMessage(address: "/SYNC", params: @[%123123])
   roundTripTest "Float", OscMessage(address: "/SYNC", params: @[%1.0])
   roundTripTest "String", OscMessage(address: "/SYNC", params: @[%"Hello World!"])

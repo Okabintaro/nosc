@@ -1,10 +1,9 @@
 ## This module implements parsing of OSC messages.
 
-import std/endians
 import std/parseutils
 import std/times
 import std/colors
-
+import nosc/stream
 
 type
   OscParseError* = object of CatchableError
@@ -177,13 +176,6 @@ proc `==`*(a, b: OscValue): bool =
 const OscInf* = OscValue(kind: oscInf)
 const OscNil* = OscValue(kind: oscNil)
 
-func pad4(length: int): int {.inline} =
-  ## Return the number of bytes needed to pad the given length to the next multiple of 4.
-  if length %% 4 != 0:
-    return (4 - length %% 4)
-  else:
-    return length
-
 func padded4(length: int): int {.inline} =
   ## Pad the given length to the next multiple of 4.
   if length %% 4 != 0:
@@ -191,52 +183,74 @@ func padded4(length: int): int {.inline} =
   else:
     return length
 
-type Bit32Type = int32 | uint32 | float32
-type Bit64Type = int64 | uint64 | float64
 
-proc readBe32[T: Bit32Type](payload: openArray[char], i: var int): T {.inline} =
-  bigEndian32(cast[cstring](result.addr), cast[cstring](payload))
-  i += 4
+proc add(buffer: var string, val: OscColor) {.inline.} =
+  when nimvm:
+    buffer.add(val.r)
+    buffer.add(val.g)
+    buffer.add(val.b)
+    buffer.add(val.a)
+  else:
+    buffer.addUint32(cast[uint32](val))
 
-proc readBe64[T: Bit64Type](payload: openArray[char], i: var int): T {.inline} =
-  bigEndian64(cast[cstring](result.addr), cast[cstring](payload))
-  i += 8
-
-proc readString(payload: openArray[char], i: var int): string =
-  ## Parse OSC String, returning the length of the \0 padded string.
-  # TODO: See if we can parse without allocating the string in parseUntil
-  # https://nim-lang.org/docs/manual_experimental.html#view-types
-  let len = payload.parseUntil(result, '\0')
-  i += padded4(len + 1) # len + 1 for the \0
+proc add(buffer: var string, val: OscMidi) {.inline.} =
+  when nimvm:
+    buffer.add(val.portId)
+    buffer.add(val.status)
+    buffer.add(val.data1)
+    buffer.add(val.data2)
+  else:
+    buffer.addUint32(cast[uint32](val))
 
 
-# TODO I wonder if you could use memcpy or a faster way to write the bytes
-# One probably shouldn't usse strings for this?
-proc writeBytes(buffer: var string, bytes: openArray[byte]): int {.inline} =
-  for b in bytes:
-    buffer.add(b.char)
-  return bytes.len
-
-proc writeBe32[T: Bit32Type](buffer: var string, val: T): int {.inline} =
-  var bytes: array[4, byte]
-  bigEndian32(bytes.addr, val.addr)
-  return writeBytes(buffer, bytes)
-
-proc writeBe64[T: Bit64Type](buffer: var string, val: T): int {.inline} =
-  var bytes: array[8, byte]
-  bigEndian64(bytes.addr, val.addr)
-  return writeBytes(buffer, bytes)
-
-proc writeString*(buffer: var string, val: string): int =
+proc addPaddedStr*(buffer: var string, val: string) {.inline.} =
   buffer.add(val)
   let rem = 4 - (val.len %% 4)
   for i in 0..<rem: buffer.add('\0')
-  return val.len + rem
 
-proc readOscTime(payload: openArray[char], i: var int): OscTime =
-  ## Read an OscTime from the given payload.
-  result.seconds = readBe32[uint32](payload[i..<i+4], i)
-  result.frac = readBe32[uint32](payload[i..<i+4], i)
+
+proc readPaddedStr(payload: string, i: var int): string =
+  ## Parse OSC String, returning the length of the \0 padded string.
+  # TODO: See if we can parse without allocating the string in parseUntil
+  # https://nim-lang.org/docs/manual_experimental.html#view-types
+  let len = payload[i..<payload.high].parseUntil(result, '\0')
+  i += padded4(len + 1) # len + 1 for the \0
+
+
+proc readOscTime(payload: string, i: var int): OscTime =
+  result.seconds = readBe32[uint32](payload, i)
+  result.frac = readBe32[uint32](payload, i)
+
+
+proc readOscColor(payload: string, i: var int): OscColor =
+  proc readOscColorSlow(payload: string, i: var int): OscColor =
+    result.r = payload[i].byte; inc i
+    result.g = payload[i].byte; inc i
+    result.b = payload[i].byte; inc i
+    result.a = payload[i].byte; inc i
+  when defined(nimscript):
+    result = readOscColorSlow(payload, i)
+  else:
+    when nimvm:
+      result = readOscColorSlow(payload, i)
+    else:
+      copyMem(result.addr, payload[i].addr, 4); i += 4
+
+
+proc readOscMidi(payload: string, i: var int): OscMidi =
+  proc readOscMidiSlow(payload: string, i: var int): OscMidi =
+    result.portId = payload[i].byte; inc i
+    result.status = payload[i].byte; inc i
+    result.data1 = payload[i].byte; inc i
+    result.data2 = payload[i].byte; inc i
+
+  when defined(nimscript):
+    result = readOscMidiSlow(payload, i)
+  else:
+    when nimvm:
+      result = readOscMidiSlow(payload, i)
+    else:
+      copyMem(result.addr, payload[i].addr, 4); i += 4
 
 
 proc readArguments(payload: string, typeTags: string, i: var int, j: var int, depth: int = 0): seq[OscValue] =
@@ -252,13 +266,13 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
       of ',':
         continue
       of 'f':
-        value = OscValue(kind: oscFloat, floatVal: readBe32[float32](payload[i..<i+4], i))
+        value = OscValue(kind: oscFloat, floatVal: readBe32[float32](payload, i))
       of 'i':
-        value = OscValue(kind: oscInt, intVal: readBe32[int32](payload[i..<i+4], i))
+        value = OscValue(kind: oscInt, intVal: readBe32[int32](payload, i))
       of 's':
-        value = OscValue(kind: oscString, strVal: readString(payload[i..<payload.len], i))
+        value = OscValue(kind: oscString, strVal: readPaddedStr(payload, i))
       of 'b':
-        var length = readBe32[int32](payload[i..<i+4], i)
+        var length = readBe32[int32](payload, i)
         let val: string = payload[i..<i+length]
         value = OscValue(kind: oscBlob, blobVal: val)
         i += padded4(length)
@@ -278,22 +292,18 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
       of 't':
         value = OscValue(kind: oscTime, timeVal: readOscTime(payload, i))
       of 'h':
-        value = OscValue(kind: oscBigInt, bigIntVal: readBe64[int64](payload[i..<i+8], i))
+        value = OscValue(kind: oscBigInt, bigIntVal: readBe64[int64](payload, i))
       of 'd':
-        value = OscValue(kind: oscDouble, doubleVal: readBe64[float64](payload[i..<i+8], i))
+        value = OscValue(kind: oscDouble, doubleVal: readBe64[float64](payload, i))
       of 'I':
         value = OscValue(kind: oscInf)
       of 'c':
-        let c = readBe32[uint32](payload[i..<i+4], i)
+        let c = readBe32[uint32](payload, i)
         value = OscValue(kind: oscChar, charVal: c.char)
       of 'r':
-        var color: OscColor
-        copyMem(color.addr, payload[i].addr, 4)
-        value = OscValue(kind: oscColor, colorVal: color)
+        value = OscValue(kind: oscColor, colorVal: readOscColor(payload, i))
       of 'm':
-        var midiMsg: OscMidi
-        copyMem(midiMsg.addr, payload[i].addr, 4)
-        value = OscValue(kind: oscMidi, midiVal: midiMsg)
+        value = OscValue(kind: oscMidi, midiVal: readOscMidi(payload, i))
       else:
         # TODO: Add option to surpress this warning or raise error
         echo "Warning: Unknown type tag: ", t
@@ -310,83 +320,86 @@ proc parseMessage*(data: string, ignore_unknown: bool = false): OscMessage {.rai
 
   # Read address and type tags
   var k: int = 0
-  result.address = readString(data, k)
+  result.address = readPaddedStr(data, k)
   if k >= data.len:
     return
-  var typeTags = readString(data[k..<data.len], k)
+
+  # TODO: Maybe this copy can be avoiced too actually
+  var typeTags = readPaddedStr(data, k)
 
   # Parse the payload/values together with the types
   # NOTE: This is kind of ugly passing i and j as var, but it works
   # Need to read some other parsers to see how they do it
-  var i, j: int = 0
-  let params = readArguments(data[k..<data.len], typeTags, i, j)
+  var j: int = 0
+  let params = readArguments(data, typeTags, k, j)
   result.params = params
 
-proc writeTags*(buffer: var string, args: seq[OscValue]): int =
-  var i: int = 0
+
+proc addTags*(buffer: var string, args: seq[OscValue]) =
   for arg in args:
     let kind = arg.kind
     case kind:
       of oscArray:
-        buffer.add("["); inc i
-        i += buffer.writeTags(arg.arrayVal)
-        buffer.add("]"); inc i
+        buffer.add("[")
+        buffer.addTags(arg.arrayVal)
+        buffer.add("]")
       else:
         let typeChar = $arg.kind
         assert typeChar.len == 1
-        buffer.add($arg.kind); inc i
+        buffer.add($arg.kind)
 
-  return i
 
-proc writeArguments*(buffer: var string, args: seq[OscValue], pad: bool = true): int =
-  var i: int = 0
+proc addPaddedTags*(buffer: var string, args: seq[OscValue]) =
+  let before = buffer.len
+  buffer.add(",")
+  buffer.addTags(args)
+  let len = buffer.len - before
+
+  # Always pad to 4 bytes with '\0'
+  let rem = 4 - (len %% 4)
+  for i in 0..<rem: buffer.add('\0')
+
+proc writeArguments*(buffer: var string, args: seq[OscValue], pad: bool = true) =
   for arg in args:
     let kind = arg.kind
     case kind:
       of oscFloat:
-        i += writeBe32[float32](buffer, arg.floatVal)
+        addBe32[float32](buffer, arg.floatVal)
       of oscInt:
-        i += writeBe32[int32](buffer, arg.intVal)
+        addBe32[int32](buffer, arg.intVal)
       of oscString:
-        i += writeString(buffer, arg.strVal)
+        addPaddedStr(buffer, arg.strVal)
       of oscBlob:
-        i += writeBe32[int32](buffer, arg.blobVal.len.int32)
-        i += writeString(buffer, arg.blobVal)
+        addBe32[int32](buffer, arg.blobVal.len.int32)
+        addPaddedStr(buffer, arg.blobVal)
       of oscTrue, oscFalse, oscNil, oscInf:
         discard
       of oscArray:
-        i += buffer.writeArguments(arg.arrayVal, pad=false)
+        buffer.writeArguments(arg.arrayVal, pad=false)
       of oscTime:
-        i += buffer.writeBe32(arg.timeVal.seconds)
-        i += buffer.writeBe32(arg.timeVal.frac)
+        buffer.addBe32(arg.timeVal.seconds)
+        buffer.addBe32(arg.timeVal.frac)
       of oscBigInt:
-        i += buffer.writeBe64(arg.bigIntVal)
+        buffer.addBe64(arg.bigIntVal)
       of oscDouble:
-        i += buffer.writeBe64(arg.doubleVal)
+        buffer.addBe64(arg.doubleVal)
       of oscColor:
-        i += buffer.writeBytes(cast[array[4, byte]](arg.colorVal))
+        buffer.add(arg.colorVal)
       of oscMidi:
-        i += buffer.writeBytes(cast[array[4, byte]](arg.midiVal))
+        buffer.add(arg.midiVal)
       of oscChar:
-        i += buffer.writeBe32(arg.charVal.int32)
-
-  return i
-
-var typeTagsStr: string = newStringOfCap(512)
+        buffer.addBe32(arg.charVal.int32)
 
 proc writeMessage*(buffer: var string, msg: OscMessage): int =
   ## Write the given OscMessage to a string.
   ## This is the inverse of parseMessage.
-  var i = 0
   
-  i += buffer.writeString(msg.address)
+  buffer.addPaddedStr(msg.address)
   # NOTE/TODO: I wonder if we could/should allocate typeTagsStr on the stack
-  typeTagsStr.setLen(0)
-  discard typeTagsStr.writeTags(msg.params)
-  i += buffer.writeString("," & typeTagsStr)
-  i += buffer.writeArguments(msg.params)
+  buffer.addPaddedTags(msg.params)
+  buffer.writeArguments(msg.params)
 
-  return i
+  return buffer.len
 
 proc dgram*(msg: OscMessage): string =
   ## Serialize the given OscMessage to a new string and return it.

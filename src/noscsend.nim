@@ -2,7 +2,6 @@
 ## Usage: noscsend ADDRESS PORT OSC_ADDRESS DATA
 
 import std/net
-import std/parseutils
 import std/strutils
 import nosc
 import os
