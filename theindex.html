@@ -54,6 +54,10 @@
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc `==`(a, b: OscValue): bool" href="nosc.html#%3D%3D%2COscValue%2COscValue">nosc: proc `==`(a, b: OscValue): bool</a></li>
           </ul></dd>
+<dt><a name="dgram" href="#dgram"><span>dgram:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc dgram(msg: OscMessage): string" href="nosc.html#dgram%2COscMessage">nosc: proc dgram(msg: OscMessage): string</a></li>
+          </ul></dd>
 <dt><a name="fractionToNano" href="#fractionToNano"><span>fractionToNano:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc fractionToNano(fraction: uint32): uint32" href="nosc.html#fractionToNano%2Cuint32">nosc: proc fractionToNano(fraction: uint32): uint32</a></li>
@@ -130,6 +134,10 @@
 <li><a class="reference external"
           data-doc-search-tag="nosc: OscType.oscNil" href="nosc.html#oscNil">nosc: OscType.oscNil</a></li>
           </ul></dd>
+<dt><a name="OscNil" href="#OscNil"><span>OscNil:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: const OscNil" href="nosc.html#OscNil_2">nosc: const OscNil</a></li>
+          </ul></dd>
 <dt><a name="OscParseError" href="#OscParseError"><span>OscParseError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: object OscParseError" href="nosc.html#OscParseError">nosc: object OscParseError</a></li>
@@ -186,11 +194,27 @@
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc toTime(time: OscTime): Time" href="nosc.html#toTime%2COscTime">nosc: proc toTime(time: OscTime): Time</a></li>
           </ul></dd>
+<dt><a name="writeArguments" href="#writeArguments"><span>writeArguments:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true): int" href="nosc.html#writeArguments%2Cstring%2Cseq%5BOscValue%5D%2Cbool">nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true): int</a></li>
+          </ul></dd>
+<dt><a name="writeMessage" href="#writeMessage"><span>writeMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc writeMessage(buffer: var string; msg: OscMessage): int" href="nosc.html#writeMessage%2Cstring%2COscMessage">nosc: proc writeMessage(buffer: var string; msg: OscMessage): int</a></li>
+          </ul></dd>
+<dt><a name="writeString" href="#writeString"><span>writeString:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc writeString(buffer: var string; val: string): int" href="nosc.html#writeString%2Cstring%2Cstring">nosc: proc writeString(buffer: var string; val: string): int</a></li>
+          </ul></dd>
+<dt><a name="writeTags" href="#writeTags"><span>writeTags:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc writeTags(buffer: var string; args: seq[OscValue]): int" href="nosc.html#writeTags%2Cstring%2Cseq%5BOscValue%5D">nosc: proc writeTags(buffer: var string; args: seq[OscValue]): int</a></li>
+          </ul></dd>
 </dl>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-09 11:10:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-09 17:10:20 UTC</small>
       </div>
     </div>
   </div>
