@@ -3,6 +3,7 @@
 import std/endians
 import std/parseutils
 import std/times
+import std/colors
 
 type
   OscParseError* = object of CatchableError
@@ -46,6 +47,26 @@ proc toOscTime*(time: Time): OscTime =
   result.seconds = (time.toUnix() - NTP_EPOCH.toUnix()).uint32
   result.frac = nanoToFraction(time.nanosecond.uint32)
 
+type OscColor* {.packed.} = object
+  r*: uint8
+  g*: uint8
+  b*: uint8
+  a*: uint8
+
+proc toColor*(c: OscColor): Color =
+  Color(c.r shl 16 or c.g shl 8 or c.b)
+
+proc toOscColor*(c: Color, alpha: uint8): OscColor =
+  let rgb = extractRGB(c)
+  OscColor(r: rgb.r.uint8, g: rgb.g.uint8, b: rgb.b.uint8, a: alpha)
+
+type OscMidi* {.packed.} = object
+  ## MIDI message. Bytes from MSB to LSB are: port id, status byte, data1, data2
+  portId*: uint8
+  status*: uint8
+  data1*: uint8
+  data2*: uint8
+
 type
   OscType* = enum
     oscFloat,
@@ -55,9 +76,14 @@ type
     oscTrue,
     oscFalse,
     oscNil,
+    oscInf,
     oscArray,
     oscTime,
     oscBigInt,
+    oscDouble,
+    oscChar,
+    oscColor,
+    oscMidi,
   OscValue* = object
     case kind*: OscType
     of oscInt: intVal*: int32
@@ -67,9 +93,14 @@ type
     of oscTrue: discard
     of oscFalse: discard
     of oscNil: discard
+    of oscInf: discard
     of oscArray: arrayVal*: seq[OscValue]
     of oscTime: timeVal*: OscTime
     of oscBigInt: bigIntVal*: int64
+    of oscDouble: doubleVal*: float64
+    of oscChar: charVal*: char
+    of oscColor: colorVal*: OscColor
+    of oscMidi: midiVal*: OscMidi
   OscMessage* = object
     address*: string
     params*: seq[OscValue]
@@ -84,10 +115,16 @@ proc `%`*(v: int): OscValue = OscValue(kind: oscInt, intVal: v.int32)
 proc `%`*(v: int32): OscValue = OscValue(kind: oscInt, intVal: v)
 proc `%`*(v: int64): OscValue = OscValue(kind: oscBigInt, bigIntVal: v)
 proc `%`*(v: float32): OscValue = OscValue(kind: oscFloat, floatVal: v) 
-proc `%`*(v: float): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: string): OscValue = OscValue(kind: oscString, strVal: v)
 proc `%`*(v: OscTime): OscValue = OscValue(kind: oscTime, timeVal: v)
 proc `%`*(v: Time): OscValue = OscValue(kind: oscTime, timeVal: v.toOscTime())
+proc `%`*(v: char): OscValue = OscValue(kind: oscChar, charVal: v)
+proc `%`*(v: OscColor): OscValue = OscValue(kind: oscColor, colorVal: v)
+proc `%`*(v: OscMidi): OscValue = OscValue(kind: oscMidi, midiVal: v)
+
+proc toOscDouble*(v: float64): OscValue =
+  ## I decided to not add a `%` overload for float64, since it's not a standard OSC type and you want float32 most of the time.
+  OscValue(kind: oscDouble, doubleVal: v)
 
 proc `%`*[T](elements: openArray[T]): OscValue =
   var arr: seq[OscValue]
@@ -104,11 +141,13 @@ proc `==`*(a, b: OscValue): bool =
       return a.intVal == b.intVal
     of oscFloat:
       return a.floatVal == b.floatVal
+    of oscDouble:
+      return a.doubleVal == b.doubleVal
     of oscString:
       return a.strVal == b.strVal
     of oscBlob:
       return a.blobVal == b.blobVal
-    of oscTrue, oscFalse, oscNil:
+    of oscTrue, oscFalse, oscNil, oscInf:
       return true
     of oscArray:
       let arr = a.arrayVal
@@ -122,7 +161,15 @@ proc `==`*(a, b: OscValue): bool =
       return a.timeVal == b.timeVal
     of oscBigInt:
       return a.bigIntVal == b.bigIntVal
+    of oscChar:
+      return a.charVal == b.charVal
+    of oscColor:
+      return a.colorVal == b.colorVal
+    of oscMidi:
+      return a.midiVal == b.midiVal
 
+
+const OscInf* = OscValue(kind: oscInf)
 
 func pad4(length: int): int {.inline} =
   ## Pad the given length to the next multiple of 4.
@@ -195,6 +242,21 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         value = OscValue(kind: oscTime, timeVal: readOscTime(payload, i))
       of 'h':
         value = OscValue(kind: oscBigInt, bigIntVal: readBe64[int64](payload[i..<i+8], i))
+      of 'd':
+        value = OscValue(kind: oscDouble, doubleVal: readBe64[float64](payload[i..<i+8], i))
+      of 'I':
+        value = OscValue(kind: oscInf)
+      of 'c':
+        let c = readBe32[uint32](payload[i..<i+4], i)
+        value = OscValue(kind: oscChar, charVal: c.char)
+      of 'r':
+        var color: OscColor
+        copyMem(color.addr, payload[i].addr, 4)
+        value = OscValue(kind: oscColor, colorVal: color)
+      of 'm':
+        var midiMsg: OscMidi
+        copyMem(midiMsg.addr, payload[i].addr, 4)
+        value = OscValue(kind: oscMidi, midiVal: midiMsg)
       else:
         # TODO: Add option to surpress this warning or raise error
         echo "Warning: Unknown type tag: ", t
