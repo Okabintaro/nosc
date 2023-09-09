@@ -2,9 +2,49 @@
 
 import std/endians
 import std/parseutils
+import std/times
 
 type
   OscParseError* = object of CatchableError
+
+
+proc fractionToNano*(fraction: uint32): uint32 =
+  let frac = (fraction.float64 * 1_000_000_000) / (1 shl 32).float64
+  return frac.uint32
+
+proc nanoToFraction*(nanoseconds: uint32): uint32 =
+  return ((nanoseconds.float64 / 1_000_000_000'f64) * (1 shl 32).float64).uint32
+
+type 
+  OscTime* = object
+    seconds: uint32
+    frac: uint32
+
+const OscTimeImmediate* = OscTime(seconds: 0, frac: 1)
+
+proc isImmediate*(time: OscTime): bool {.inline.} =
+  return time == OscTimeImmediate
+
+# let NTP_EPOCH = dateTime(1900, mJan, 1, zone=utc()).toTime()
+# NTP_EPOCH: Time(seconds: -2208988800, nanosecond: 0)
+const NTP_EPOCH = initTime(-2208988800, 0)
+
+proc toTime*(time: OscTime): Time =
+  ## Convert the given OSC/NTP timestamp to a Time object.
+  ## 
+  ## This conversation is lossy. Doing a round-trip will have a deviation of 1 nanosecond.
+  ## See test/times.nim for the test that shows that.
+  ## 
+  ## NOTE: This does not handle the special case of an immediate time.
+  ## You have to check using isImmediate yourself.
+  let unixSeconds = time.seconds.int64 + NTP_EPOCH.toUnix()
+  let nano = fractionToNano(time.frac)
+  return initTime(unixSeconds,nano)
+
+proc toOscTime*(time: Time): OscTime =
+  ## Convert the given time to an OSC/NTP Timestamp.
+  result.seconds = (time.toUnix() - NTP_EPOCH.toUnix()).uint32
+  result.frac = nanoToFraction(time.nanosecond.uint32)
 
 type
   OscType* = enum
@@ -28,7 +68,7 @@ type
     of oscFalse: discard
     of oscNil: discard
     of oscArray: arrayVal*: seq[OscValue]
-    of oscTime: timeVal*: int
+    of oscTime: timeVal*: OscTime
     of oscBigInt: bigIntVal*: int64
   OscMessage* = object
     address*: string
@@ -46,6 +86,9 @@ proc `%`*(v: int64): OscValue = OscValue(kind: oscBigInt, bigIntVal: v)
 proc `%`*(v: float32): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: float): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: string): OscValue = OscValue(kind: oscString, strVal: v)
+proc `%`*(v: OscTime): OscValue = OscValue(kind: oscTime, timeVal: v)
+proc `%`*(v: Time): OscValue = OscValue(kind: oscTime, timeVal: v.toOscTime())
+
 proc `%`*[T](elements: openArray[T]): OscValue =
   var arr: seq[OscValue]
   for elem in elements: arr.add(%elem)
@@ -88,13 +131,6 @@ func pad4(length: int): int {.inline} =
   else:
     return length
 
-proc readString(payload: openArray[char], i: var int): string =
-  ## Parse OSC String, returning the length of the \0 padded string.
-  # TODO: See if we can parse without allocating the string in parseUntil
-  # https://nim-lang.org/docs/manual_experimental.html#view-types
-  let len = payload.parseUntil(result, '\0')
-  i += pad4(len)
-
 # TODO: Type constraint T to 32bit types?
 proc readBe32[T](payload: openArray[char], i: var int): T {.inline} =
   bigEndian32(cast[cstring](result.addr), cast[cstring](payload))
@@ -104,6 +140,20 @@ proc readBe32[T](payload: openArray[char], i: var int): T {.inline} =
 proc readBe64[T](payload: openArray[char], i: var int): T {.inline} =
   bigEndian64(cast[cstring](result.addr), cast[cstring](payload))
   i += 8
+
+proc readString(payload: openArray[char], i: var int): string =
+  ## Parse OSC String, returning the length of the \0 padded string.
+  # TODO: See if we can parse without allocating the string in parseUntil
+  # https://nim-lang.org/docs/manual_experimental.html#view-types
+  let len = payload.parseUntil(result, '\0')
+  i += pad4(len)
+
+
+proc readOscTime(payload: openArray[char], i: var int): OscTime =
+  ## Read an OscTime from the given payload.
+  result.seconds = readBe32[uint32](payload[i..<i+4], i)
+  result.frac = readBe32[uint32](payload[i..<i+4], i)
+
 
 proc readArguments(payload: string, typeTags: string, i: var int, j: var int, depth: int = 0): seq[OscValue] =
   ## Parse the payload of an OSC message.
@@ -127,7 +177,6 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         var length = readBe32[int32](payload[i..<i+4], i)
         let val: string = payload[i..<i+length]
         value = OscValue(kind: oscBlob, blobVal: val)
-        # TODO: Make template/proc for this
         i += pad4(length)
       of 'T':
         value = OscValue(kind: oscTrue)
@@ -143,9 +192,7 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
           raise newException(OscParseError, "Unmatched `]`")
         return params
       of 't':
-        # TODO: Port the ntp parsing logic from python
-        value = OscValue(kind: oscTime, timeVal: 0)
-        i += 8
+        value = OscValue(kind: oscTime, timeVal: readOscTime(payload, i))
       of 'h':
         value = OscValue(kind: oscBigInt, bigIntVal: readBe64[int64](payload[i..<i+8], i))
       else:
