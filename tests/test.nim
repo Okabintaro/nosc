@@ -5,6 +5,7 @@
 import unittest
 import nosc
 import std/times
+import std/random
 
 
 suite "Parsing single typed Messages":
@@ -16,17 +17,27 @@ suite "Parsing single typed Messages":
     let message = parseMessage(DGRAM_KNOB_ROTATES)
     check(message == OscMessage(address: "/FB", params: @[42.1337.toOscDouble]))
 
+  # TODO: What does python-osc do here?
+  when false:
+    test "borken infinitum (EOF?)":
+      const DGRAM_INF =
+          "/FB\x00" &
+          "IIII"
+      let message = parseMessage(DGRAM_INF)
+      check(message == OscMessage(address: "/FB", params: @[OscInf, OscInf, OscInf, OscInf]))
+
+
   test "infinitum":
     const DGRAM_INF =
         "/FB\x00" &
-        "IIII"
+        ",IIII\0\0\0"
     let message = parseMessage(DGRAM_INF)
     check(message == OscMessage(address: "/FB", params: @[OscInf, OscInf, OscInf, OscInf]))
 
   test "char":
     const DGRAM_CHARS =
         "/FB\x00" &
-        "cccc" &
+        ",cccc\0\0\0" &
         "\x00\x00\x00H" &
         "\x00\x00\x00e" &
         "\x00\x00\x00y" &
@@ -183,22 +194,56 @@ suite "Parsing OSC Messages(Ported from python-osc)":
     check(msg.params.len == 1)
     check(msg.params[0].arrayVal.len == 512)
 
-  # test "too long params":
-    # NOTE: I somehow broke the parser, playing around with the DRAM_LONG_LIST
-    #       addrLen: 8152 8150
-    #   C:\Users\Okabintaro\nosc\tests\test.nim(138) test
-    #   C:\Users\Okabintaro\nosc\src\nosc.nim(174) parseMessage
-    #   C:\Users\Okabintaro\scoop\apps\nim\current\lib\system\indices.nim(85) []
-    #   C:\Users\Okabintaro\scoop\apps\nim\current\lib\system\fatal.nim(53) sysFatal
-    # Unhandled exception: value out of range: -2 notin 0 .. 9223372036854775807 [RangeDefect]
-    # TODO: Need to reproduce/fuzz it
+# proc roundTripTest(message: OscMessage) =
+#   var buffer = newStringOfCap(512)
+#   let len = buffer.writeMessage(message)
+#   check(len == buffer.len)
+#   check(len %% 4 == 0)
+#   let parsed = parseMessage(buffer)
+#   check(parsed == message)
 
-# TODO
-# suite "Building OSC Messages":
-#   test "build simple message(float)":
-#     const DGRAM_SWITCH_GOES_ON = 
-#         "/SYNC\x00\x00\x00" &
-#         ",f\x00\x00" &
-#         "?\x00\x00\x00"
-#     let message = OscMessage(address: "/SYNC", params: @[OscValue(kind: oscFloat, floatVal: 1.0)])
-#     check(message.dgram() == "/SYNC\x00\x00\x00,f\x00\x00\x00?\x00\x00\x00")
+var r = initRand(42)
+proc randomTime(): Time =
+  let unixSecs: float64 = r.rand(float64.high)
+  fromUnixFloat(unixSecs)
+
+suite "Writing OSC Messages":
+  test "Write String":
+    var buffer = newStringOfCap(512)
+    let randString = "Hel"
+    let len = buffer.writeString(randString)
+    check(buffer.len == 4)
+    check(len == 4)
+
+
+proc rtt(message: OscMessage) {.inline.} =
+  var buffer = newStringOfCap(512)
+  let len = buffer.writeMessage(message)
+  check(len == buffer.len)
+  check(len %% 4 == 0)
+  let parsed = parseMessage(buffer)
+  check(parsed == message)
+
+
+suite "Round Trip Tests":
+  template roundTripTest(name: string, message: OscMessage) =
+    test name & "(round-trip)":
+      rtt(message)
+
+  # Standard Types
+  roundTripTest "Int", OscMessage(address: "/SYNC", params: @[%123123])
+  roundTripTest "Float", OscMessage(address: "/SYNC", params: @[%1.0])
+  roundTripTest "String", OscMessage(address: "/SYNC", params: @[%"Hello World!"])
+  const test_blob = OscValue(kind: oscBlob, blobVal: "stuff\x00\x00\x00")
+  roundTripTest "Blob", OscMessage(address: "/SYNC", params: @[test_blob])
+
+  # Non Standard Types
+  roundTripTest "Double", OscMessage(address: "/SYNC", params: @[%42.1337.toOscDouble])
+  roundTripTest "NonDataTypes/Flags", OscMessage(address: "/SYNC", params: @[%true, %false, %OscNil, %OscInf])
+  roundTripTest "Arrays", OscMessage(address: "/SYNC", params: @[%[%[2], %[%3, %[%"GHI"]]]])
+  roundTripTest "Time", OscMessage(address: "/SYNC", params: @[%randomTime()])
+  roundTripTest "Int64", OscMessage(address: "/SYNC", params: @[%123123123.int64])
+  roundTripTest "Char", OscMessage(address: "/SYNC", params: @[%'H', %'e', %'l', %'l', %'o'])
+  roundTripTest "Color/RGBA", OscMessage(address: "/SYNC", params: @[%OscColor(r: 0x12, g: 0x34, b: 0x56, a: 0x78)])
+  roundTripTest "Midi", OscMessage(address: "/SYNC", params: @[%OscMidi(portId: 1, status: 0xAB, data1: 0xCD, data2: 0xEF)])
+

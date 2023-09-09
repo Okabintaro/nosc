@@ -12,7 +12,7 @@
     - [X] r: 32 bit RGBA color
     - [X] m: 4 byte MIDI message. Bytes from MSB to LSB are: port id, status byte, data1, data2
   - [X] Cleanup tests using comparison operator
-  - [ ] Implement basic serialization
+  - [X] Implement basic serialization
     - Allocation free possible?
       - For constant messsages we should be able to just construct the buffer at compile time.
     - Should just write to a buffer using parameters like printf/tinyosc
