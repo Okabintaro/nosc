@@ -13,3 +13,4 @@ nimcache
 
 # custom
 py/temp/*
+bin/
