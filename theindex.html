@@ -21,7 +21,7 @@
   <div class="document" id="documentId">
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="nosc.html">nosc</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="nosc.html">nosc</a>, <a href="nosc/stream.html">nosc/stream</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%25%60" href="#%60%25%60"><span>`%`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc `%`(b: bool): OscValue" href="nosc.html#%25%2Cbool">nosc: proc `%`(b: bool): OscValue</a></li>
@@ -53,6 +53,38 @@
 <dt><a name="%60%3D%3D%60" href="#%60%3D%3D%60"><span>`==`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc `==`(a, b: OscValue): bool" href="nosc.html#%3D%3D%2COscValue%2COscValue">nosc: proc `==`(a, b: OscValue): bool</a></li>
+          </ul></dd>
+<dt><a name="add" href="#add"><span>add:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc add(buffer: var string; val: byte)" href="nosc/stream.html#add%2Cstring%2Cbyte">stream: proc add(buffer: var string; val: byte)</a></li>
+          </ul></dd>
+<dt><a name="addBe32" href="#addBe32"><span>addBe32:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc addBe32[T: Bit32Type](buffer: var string; val: T)" href="nosc/stream.html#addBe32%2Cstring%2CT">stream: proc addBe32[T: Bit32Type](buffer: var string; val: T)</a></li>
+          </ul></dd>
+<dt><a name="addBe64" href="#addBe64"><span>addBe64:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc addBe64[T: Bit64Type](buffer: var string; val: T)" href="nosc/stream.html#addBe64%2Cstring%2CT">stream: proc addBe64[T: Bit64Type](buffer: var string; val: T)</a></li>
+          </ul></dd>
+<dt><a name="addPaddedStr" href="#addPaddedStr"><span>addPaddedStr:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addPaddedStr(buffer: var string; val: string)" href="nosc.html#addPaddedStr%2Cstring%2Cstring">nosc: proc addPaddedStr(buffer: var string; val: string)</a></li>
+          </ul></dd>
+<dt><a name="addPaddedTags" href="#addPaddedTags"><span>addPaddedTags:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addPaddedTags(buffer: var string; args: seq[OscValue])" href="nosc.html#addPaddedTags%2Cstring%2Cseq%5BOscValue%5D">nosc: proc addPaddedTags(buffer: var string; args: seq[OscValue])</a></li>
+          </ul></dd>
+<dt><a name="addTags" href="#addTags"><span>addTags:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addTags(buffer: var string; args: seq[OscValue])" href="nosc.html#addTags%2Cstring%2Cseq%5BOscValue%5D">nosc: proc addTags(buffer: var string; args: seq[OscValue])</a></li>
+          </ul></dd>
+<dt><a name="addUint32" href="#addUint32"><span>addUint32:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc addUint32(s: var string; v: uint32)" href="nosc/stream.html#addUint32%2Cstring%2Cuint32">stream: proc addUint32(s: var string; v: uint32)</a></li>
+          </ul></dd>
+<dt><a name="addUint64" href="#addUint64"><span>addUint64:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc addUint64(s: var string; v: uint64)" href="nosc/stream.html#addUint64%2Cstring%2Cuint64">stream: proc addUint64(s: var string; v: uint64)</a></li>
           </ul></dd>
 <dt><a name="dgram" href="#dgram"><span>dgram:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -174,6 +206,30 @@
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc parseMessage(data: string; ignore_unknown: bool = false): OscMessage" href="nosc.html#parseMessage%2Cstring%2Cbool">nosc: proc parseMessage(data: string; ignore_unknown: bool = false): OscMessage</a></li>
           </ul></dd>
+<dt><a name="readBe32" href="#readBe32"><span>readBe32:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc readBe32[T: Bit32Type](s: string; i: var int): T" href="nosc/stream.html#readBe32%2Cstring%2Cint">stream: proc readBe32[T: Bit32Type](s: string; i: var int): T</a></li>
+          </ul></dd>
+<dt><a name="readBe64" href="#readBe64"><span>readBe64:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc readBe64[T: Bit64Type](s: string; i: var int): T" href="nosc/stream.html#readBe64%2Cstring%2Cint">stream: proc readBe64[T: Bit64Type](s: string; i: var int): T</a></li>
+          </ul></dd>
+<dt><a name="swap" href="#swap"><span>swap:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: float32): float32" href="nosc/stream.html#swap%2Cfloat32">stream: proc swap(v: float32): float32</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: float64): float64" href="nosc/stream.html#swap%2Cfloat64">stream: proc swap(v: float64): float64</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: int32): int32" href="nosc/stream.html#swap%2Cint32">stream: proc swap(v: int32): int32</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: int64): int64" href="nosc/stream.html#swap%2Cint64">stream: proc swap(v: int64): int64</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: uint16): uint16" href="nosc/stream.html#swap%2Cuint16">stream: proc swap(v: uint16): uint16</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: uint32): uint32" href="nosc/stream.html#swap%2Cuint32">stream: proc swap(v: uint32): uint32</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="stream: proc swap(v: uint64): uint64" href="nosc/stream.html#swap%2Cuint64">stream: proc swap(v: uint64): uint64</a></li>
+          </ul></dd>
 <dt><a name="toColor" href="#toColor"><span>toColor:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc toColor(c: OscColor): Color" href="nosc.html#toColor%2COscColor">nosc: proc toColor(c: OscColor): Color</a></li>
@@ -196,25 +252,17 @@
           </ul></dd>
 <dt><a name="writeArguments" href="#writeArguments"><span>writeArguments:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true): int" href="nosc.html#writeArguments%2Cstring%2Cseq%5BOscValue%5D%2Cbool">nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true): int</a></li>
+          data-doc-search-tag="nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)" href="nosc.html#writeArguments%2Cstring%2Cseq%5BOscValue%5D%2Cbool">nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)</a></li>
           </ul></dd>
 <dt><a name="writeMessage" href="#writeMessage"><span>writeMessage:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc writeMessage(buffer: var string; msg: OscMessage): int" href="nosc.html#writeMessage%2Cstring%2COscMessage">nosc: proc writeMessage(buffer: var string; msg: OscMessage): int</a></li>
           </ul></dd>
-<dt><a name="writeString" href="#writeString"><span>writeString:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="nosc: proc writeString(buffer: var string; val: string): int" href="nosc.html#writeString%2Cstring%2Cstring">nosc: proc writeString(buffer: var string; val: string): int</a></li>
-          </ul></dd>
-<dt><a name="writeTags" href="#writeTags"><span>writeTags:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="nosc: proc writeTags(buffer: var string; args: seq[OscValue]): int" href="nosc.html#writeTags%2Cstring%2Cseq%5BOscValue%5D">nosc: proc writeTags(buffer: var string; args: seq[OscValue]): int</a></li>
-          </ul></dd>
 </dl>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-09 17:34:33 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-10 18:29:15 UTC</small>
       </div>
     </div>
   </div>
