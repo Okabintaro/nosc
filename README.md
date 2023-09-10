@@ -30,10 +30,11 @@ Take a look at [TODO.md](TODO.md) for a list of next steps.
 - [Test cases][python-osc-tests] are ported from [python-osc][python-osc]
 - `hexprint.nim` from [treeform/flatty][hexprint]
 - `pretty.nim` from [treeform/pretty][pretty]
-- `stream` contains ideas and code from [treeform/flatty][treeform]
+- `stream.nim` contains ideas and code from [treeform/flatty][flatty]
+- `tests/benchy` from [treeform/benchy][benchy]
 
 All of those are made by [treeform][treeform] and are licensed under the MIT license.
-See the [LICENSE.treeform](LICENSE.treeform) file for the full license.
+See the [LICENSE.treeform](src/nosc/LICENSE.treeform) file for the full license.
 
 ## License
 
@@ -45,4 +46,6 @@ See the [LICENSE](LICENSE) file for the full license.
 [python-osc-tests]: https://github.com/attwad/python-osc/blob/master/pythonosc/test
 [hexprint]: https://github.com/treeform/flatty/blob/master/src/flatty/hexprint.nim
 [pretty]: https://github.com/treeform/pretty
+[flatty]: https://github.com/treeform/flatty
+[benchy]: https://github.com/treeform/benchy
 [treeform]: https://github.com/treeform
