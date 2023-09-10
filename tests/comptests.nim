@@ -1,6 +1,7 @@
-import std/times
 import nosc
 import nosc/hexprint
+when not (defined(windows) and defined(nimscript)):
+  import std/times
 
 # Compile time roundTrip Test
 static:
@@ -27,8 +28,11 @@ static:
     roundTripTest "Double", OscMessage(address: "/SYNC", params: @[%42.1337.toOscDouble])
     roundTripTest "NonDataTypes/Flags", OscMessage(address: "/SYNC", params: @[%true, %false, %OscNil, %OscInf])
     roundTripTest "Arrays", OscMessage(address: "/SYNC", params: @[%[%[2], %[%3, %[%"GHI"]]]])
-    const time = initTime(123123, 23123)
-    roundTripTest "Time", OscMessage(address: "/SYNC", params: @[%time])
+
+    when not (defined(windows) and defined(nimscript)):
+      const time = initTime(123123, 23123)
+      roundTripTest "Time", OscMessage(address: "/SYNC", params: @[%time])
+
     roundTripTest "Int64", OscMessage(address: "/SYNC", params: @[%123123123.int64])
     roundTripTest "Char", OscMessage(address: "/SYNC", params: @[%'H', %'e', %'l', %'l', %'o'])
     roundTripTest "Color/RGBA", OscMessage(address: "/SYNC", params: @[%OscColor(r: 0x12, g: 0x34, b: 0x56, a: 0x78)])

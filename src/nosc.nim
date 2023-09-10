@@ -1,9 +1,11 @@
 ## This module implements parsing of OSC messages.
-
 import std/parseutils
-import std/times
 import std/colors
 import nosc/stream
+# On windows and nimscript std/times gives an error:
+# nim-2.0.0\lib\windows\winlean.nim(844, 20) Error: VM does not support 'cast' from tyPointer to tyProc
+when not (defined(windows) and defined(nimscript)):
+  import std/times
 
 type
   OscParseError* = object of CatchableError
@@ -26,26 +28,6 @@ const OscTimeImmediate* = OscTime(seconds: 0, frac: 1)
 proc isImmediate*(time: OscTime): bool {.inline.} =
   return time == OscTimeImmediate
 
-# let NTP_EPOCH = dateTime(1900, mJan, 1, zone=utc()).toTime()
-# NTP_EPOCH: Time(seconds: -2208988800, nanosecond: 0)
-const NTP_EPOCH = initTime(-2208988800, 0)
-
-proc toTime*(time: OscTime): Time =
-  ## Convert the given OSC/NTP timestamp to a Time object.
-  ## 
-  ## This conversation is lossy. Doing a round-trip will have a deviation of 1 nanosecond.
-  ## See test/times.nim for the test that shows that.
-  ## 
-  ## NOTE: This does not handle the special case of an immediate time.
-  ## You have to check using isImmediate yourself.
-  let unixSeconds = time.seconds.int64 + NTP_EPOCH.toUnix()
-  let nano = fractionToNano(time.frac)
-  return initTime(unixSeconds,nano)
-
-proc toOscTime*(time: Time): OscTime =
-  ## Convert the given time to an OSC/NTP Timestamp.
-  result.seconds = (time.toUnix() - NTP_EPOCH.toUnix()).uint32
-  result.frac = nanoToFraction(time.nanosecond.uint32)
 
 type OscColor* {.packed.} = object
   r*: uint8
@@ -117,7 +99,6 @@ proc `%`*(v: int64): OscValue = OscValue(kind: oscBigInt, bigIntVal: v)
 proc `%`*(v: float32): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: string): OscValue = OscValue(kind: oscString, strVal: v)
 proc `%`*(v: OscTime): OscValue = OscValue(kind: oscTime, timeVal: v)
-proc `%`*(v: Time): OscValue = OscValue(kind: oscTime, timeVal: v.toOscTime())
 proc `%`*(v: char): OscValue = OscValue(kind: oscChar, charVal: v)
 proc `%`*(v: OscColor): OscValue = OscValue(kind: oscColor, colorVal: v)
 proc `%`*(v: OscMidi): OscValue = OscValue(kind: oscMidi, midiVal: v)
@@ -133,6 +114,33 @@ proc `%`*[T](elements: openArray[T]): OscValue =
   for elem in elements: arr.add(%elem)
   return OscValue(kind: oscArray, arrayVal: arr)
 proc `%`*(v: OscValue): OscValue = v
+
+# Converstion between OSC/NTP and Time
+when not (defined(windows) and defined(nimscript)):
+  # let NTP_EPOCH = dateTime(1900, mJan, 1, zone=utc()).toTime()
+  # NTP_EPOCH: Time(seconds: -2208988800, nanosecond: 0)
+
+  const NTP_EPOCH = initTime(-2208988800, 0)
+
+  proc toTime*(time: OscTime): Time =
+    ## Convert the given OSC/NTP timestamp to a Time object.
+    ## 
+    ## This conversation is lossy. Doing a round-trip will have a deviation of 1 nanosecond.
+    ## See test/times.nim for the test that shows that.
+    ## 
+    ## NOTE: This does not handle the special case of an immediate time.
+    ## You have to check using isImmediate yourself.
+    let unixSeconds = time.seconds.int64 + NTP_EPOCH.toUnix()
+    let nano = fractionToNano(time.frac)
+    return initTime(unixSeconds,nano)
+
+  proc toOscTime*(time: Time): OscTime =
+    ## Convert the given time to an OSC/NTP Timestamp.
+    result.seconds = (time.toUnix() - NTP_EPOCH.toUnix()).uint32
+    result.frac = nanoToFraction(time.nanosecond.uint32)
+
+  proc `%`*(v: Time): OscValue = OscValue(kind: oscTime, timeVal: v.toOscTime())
+
 
 # Compare OSCValues
 proc `==`*(a, b: OscValue): bool =

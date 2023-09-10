@@ -1,6 +1,6 @@
 # nosc
 
-![Github Actions](https://github.com/Okabintaro/nosc/workflows/Github%20Actions/badge.svg)
+[![Github Actions](https://github.com/Okabintaro/nosc/workflows/Github%20Actions/badge.svg)](https://github.com/Okabintaro/nosc/actions/workflows/build.yml)
 
 [API reference](https://okabintaro.github.io/nosc/)
 
