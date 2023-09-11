@@ -193,22 +193,32 @@ func padded4(length: int): int {.inline} =
 
 
 proc add(buffer: var string, val: OscColor) {.inline.} =
-  when nimvm:
+  proc fallback(buffer: var string, val: OscColor) {.inline.} =
     buffer.add(val.r)
     buffer.add(val.g)
     buffer.add(val.b)
     buffer.add(val.a)
+  when defined(nimscript) or defined(js):
+    fallback(buffer, val)
   else:
-    buffer.addUint32(cast[uint32](val))
+    when nimvm:
+      fallback(buffer, val)
+    else:
+      buffer.addUint32(cast[uint32](val))
 
 proc add(buffer: var string, val: OscMidi) {.inline.} =
-  when nimvm:
+  proc fallback(buffer: var string, val: OscMidi) {.inline.} =
     buffer.add(val.portId)
     buffer.add(val.status)
     buffer.add(val.data1)
     buffer.add(val.data2)
+  when defined(nimscript) or defined(js):
+    fallback(buffer, val)
   else:
-    buffer.addUint32(cast[uint32](val))
+    when nimvm:
+      fallback(buffer, val)
+    else:
+      buffer.addUint32(cast[uint32](val))
 
 
 proc addPaddedStr*(buffer: var string, val: string) {.inline.} =
@@ -236,7 +246,7 @@ proc readOscColor(payload: string, i: var int): OscColor =
     result.g = payload[i].byte; inc i
     result.b = payload[i].byte; inc i
     result.a = payload[i].byte; inc i
-  when defined(nimscript):
+  when defined(nimscript) or defined(js):
     result = readOscColorSlow(payload, i)
   else:
     when nimvm:
@@ -252,7 +262,7 @@ proc readOscMidi(payload: string, i: var int): OscMidi =
     result.data1 = payload[i].byte; inc i
     result.data2 = payload[i].byte; inc i
 
-  when defined(nimscript):
+  when defined(nimscript) or defined(js):
     result = readOscMidiSlow(payload, i)
   else:
     when nimvm:

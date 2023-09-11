@@ -15,18 +15,10 @@
   - [X] Implement basic serialization
   - [X] Add some benchmarks with benchy
   - [X] Investigate/Commit writeTags optimization
-  - [O] Compile / NimScript support
-    - [O] Simplify writer by using str.len
-    - [ ] Introduce procs for writing time and color
-    - [ ] Port/Copy needed functions and make sure they work in compile time
-      - [ ] swap32, swap64
-      - [ ] addUint32, addUint64
-      - [ ] readUint32, readUint64
-      - [ ] addByte, readByte
-    - [ ] Write some compile time tests?
-  - [ ] (Maybe) JS Support?
-    - [ ] Test if NimScript support implies JS support
-
+  - [X] Compile / NimScript support
+  - [X] (Maybe) JS Support?
+    - [O] Test if NimScript support implies JS support
+      - There are issues with float/double mainly
   - [O] Comparison/Oracle Test: Compare to python-osc
     - [X] Did some tests with python bindings and nimpy, quite easy to use
     - [ ] Learn and use hypothesis to generate random messages
@@ -44,6 +36,8 @@
 - [ ] Bundles
 - [ ] Matching
 - [ ] Cleanup/Style
+  - [ ] proc -> func if possible
+  - [ ] Remove echo warning
   - [ ] message.params -> message.args: They are called arguments in the spec
 
 - [ ] Improve Documentation

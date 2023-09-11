@@ -17,6 +17,11 @@ task test, "Runs the test suite":
   exec "nim c -r tests/comptests.nim"
   exec "nim e tests/comptests.nim"
 
+task testjs, "Build and run javascript tests":
+  exec "nim js -d:release tests/jstests.nim"
+  exec "bun run tests/jstests.js"
+
+
 task bench, "Runs the benchmark suite":
   exec "nim c -r tests/bench.nim"
 
