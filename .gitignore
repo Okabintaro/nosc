@@ -14,3 +14,4 @@ nimcache
 # custom
 py/temp/*
 bin/
+py/*.so

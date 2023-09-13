@@ -7,6 +7,10 @@ license     = "MIT"
 
 srcDir = "src"
 bin    = @["noscat", "noscsend"]
+installExt = @["nim"]
+
+requires "nim >= 1.2.2", "nimpy"
+
 
 requires "nim >= 1.2.2"
 
@@ -41,3 +45,7 @@ task staticbuild, "Build statically linked executables using zigcc":
   exec zigcc("src/noscat.nim", "x86_64-linux-musl", "linux")
   exec zigcc("src/noscat.nim", "x86_64-windows-gnu", "windows")
   exec zigcc("src/noscat.nim", "x86_64-macos-none", "macosx")
+
+task py, "Build and test python bindings":
+  exec "nim c --app:lib --mm:arc --opt:size --threads:on --out:py/noscpy.so py/noscpy.nim"
+  exec "python3 py/test_bindings.py"

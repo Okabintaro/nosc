@@ -24,12 +24,12 @@
       - [ ] readUint32, readUint64
       - [ ] addByte, readByte
     - [ ] Write some compile time tests?
-  - [ ] (Maybe) JS Support?
-    - [ ] Test if NimScript support implies JS support
 
   - [O] Comparison/Oracle Test: Compare to python-osc
     - [X] Did some tests with python bindings and nimpy, quite easy to use
+    - [X] Finish up basic bindings
     - [ ] Learn and use hypothesis to generate random messages
+      - [ ] Create a random osc message uisn
       - [ ] Equality Tests: Serialize with both implementations and compare buffer
       - [ ] Encoder/Decoder Tests
         - [ ] Combination 1: Encode with nim, decode with python
@@ -38,11 +38,20 @@
         - [ ] Combination 4: Encode with python, decode with python
           - Might find bugs in python implementation too
     - [ ] Maybe also try to generate random messages in nim
-  - [ ] Integration Test: Simple OSC Server <-> Client Based Test
-  - [ ] benchmarks: Count allocations if possible, to see if we can reduce them
 
 - [ ] Bundles
-- [ ] Matching
+  - [ ] Read the specs
+  - [ ] Port bundle tests from python-osc
+  - [ ] Write proptest for bundles
+- [ ] Fun VRC Test/Application
+  - [ ] Jump -> Emissive Hair Color Change
+  - [ ] TrackingData + Geasture -> Color Change? Fly Mode?
+
+  - [ ] JS Support?
+    - [ ] Refactor stream.nim from branch to use jsbinny/js procedures
+
+- [ ] Integration Test: Simple OSC Server <-> Client Based Test
+- [ ] benchmarks: Count allocations if possible, to see if we can reduce them
 - [ ] Cleanup/Style
   - [ ] message.params -> message.args: They are called arguments in the spec
 
