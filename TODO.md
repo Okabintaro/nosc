@@ -30,9 +30,9 @@
     - [X] Finish up basic bindings
     - [X] Learn and use hypothesis to generate random messages
       - [O] Create a random osc message
-        - [ ] Only tests 4 standard types, Create tests using all supported types
-          - [ ] python support for all the types
-          - [ ] Create new message strategy
+        - [X] Only tests 4 standard types, Create tests using all supported types
+        - [ ] python support for all the types
+        - [ ] Create new message strategy
       - [O] Equality Tests: Serialize with both implementations and compare buffer
       - [O] Test some other properties from the spec
         - [X] Message length is always a multiple of 4
@@ -46,9 +46,10 @@
       - [X] Fuzz the parser
       - [ ] Try to generate actual messages instead of random bytes
 
-- [ ] Bundles
-  - [ ] Read the specs
-  - [ ] Port bundle tests from python-osc
+- [O] Bundles
+  - [X] Read the specs
+  - [X] Implement bundle parsing and writing
+  - [O] Port bundle tests from python-osc
   - [ ] Write proptest for bundles
 
 - [ ] Integration Test?: Simple OSC Server <-> Client Based Test

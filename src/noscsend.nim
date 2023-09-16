@@ -42,7 +42,7 @@ for word in dataArgs.split(" "):
     args.add(%word)
     # TODO: Parse True/False/Nil, maybe also times?
 
-let msg = OscMessage(address: oscAddr, params: args)
+let msg = OscMessage(address: oscAddr, args: args)
 echo "Sending ", msg
 
 socket.sendTo(address, port, msg.dgram())
