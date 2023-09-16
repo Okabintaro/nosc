@@ -1,4 +1,4 @@
-## This module implements parsing of OSC messages.
+## This module implements parsing and serializing of OSC messages.
 import std/parseutils
 import std/colors
 import std/strutils
@@ -119,6 +119,7 @@ proc `%`*[T](elements: openArray[T]): OscValue =
 proc `%`*(v: OscValue): OscValue = v
 
 # Converstion between OSC/NTP and Time
+# TODO: Move to separate module
 when not (defined(windows) and defined(nimscript)):
   # let NTP_EPOCH = dateTime(1900, mJan, 1, zone=utc()).toTime()
   # NTP_EPOCH: Time(seconds: -2208988800, nanosecond: 0)
@@ -434,7 +435,6 @@ proc writeMessage*(buffer: var string, msg: OscMessage): int =
   ## This is the inverse of parseMessage.
   
   buffer.addPaddedStr(msg.address)
-  # NOTE/TODO: I wonder if we could/should allocate typeTagsStr on the stack
   buffer.addPaddedTags(msg.params)
   buffer.writeArguments(msg.params)
 

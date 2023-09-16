@@ -12,11 +12,13 @@ installExt = @["nim"]
 requires "nim >= 2.0.0"
 
 task test, "Runs the test suite":
-  exec "nim c -r tests/test.nim"
+  exec "nim c -r tests/test_messages.nim"
+  exec "nim c -r tests/test_time.nim"
+  # exec "nim c -r tests/test_bundles.nim"
 
   # Test compile time execution and nimscript
-  exec "nim c -r tests/comptests.nim"
-  exec "nim e tests/comptests.nim"
+  exec "nim c -r tests/test_comptime.nim"
+  exec "nim e tests/test_comptime.nim"
 
 task bench, "Runs the benchmark suite":
   exec "nim c -r tests/bench.nim"

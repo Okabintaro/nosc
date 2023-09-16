@@ -60,6 +60,11 @@
   - [ ] Learn nimdoc
   - [ ] Add runnable examples
   - [ ] Small Tutorial, some how-tos
+    - Use [nimibook](https://github.com/pietroppeter/nimibook)?
+
+### 0.2 Dispatcher + Performance
+
+- [ ] Dispatcher
 
 ### Nice to have
 

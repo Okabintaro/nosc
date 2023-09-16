@@ -129,7 +129,7 @@ proc addBe64*[T: Bit64Type](buffer: var string, val: T) {.inline.} =
 
 proc readBe32*[T: Bit32Type](s: string, i: var int): T {.inline} =
   if i + 4 > s.len:
-    raise newException(OscParseError, "Not enough bytes to read")
+    raise newException(OscParseError, "Not enough bytes to read 32-bit number")
   proc readBe32Slow[T: Bit32Type](s: string, i: var int): T {.inline} =
     let tmp: uint32 = 
         (s[i].uint32 shl 0) or (s[i+1].uint32 shl 8) or (s[i+2].uint32 shl 16) or (s[i+3].uint32 shl 24)
@@ -149,7 +149,7 @@ proc readBe32*[T: Bit32Type](s: string, i: var int): T {.inline} =
 
 proc readBe64*[T: Bit64Type](s: string, i: var int): T {.inline} =
   if i + 8 > s.len:
-    raise newException(OscParseError, "Not enough bytes to read")
+    raise newException(OscParseError, "Not enough bytes to read 64-bit number")
   proc readBe64Slow[T: Bit64Type](s: string, i: var int): T {.inline} =
     let tmpu: uint64 = 
       (s[i].uint64 shl 0) or (s[i+1].uint64 shl 8) or (s[i+2].uint64 shl 16) or (s[i+3].uint64 shl 24) or
