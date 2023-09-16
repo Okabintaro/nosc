@@ -36,8 +36,7 @@
       - [O] Equality Tests: Serialize with both implementations and compare buffer
       - [O] Test some other properties from the spec
         - [X] Message length is always a multiple of 4
-        - [ ] [Try to come up with some other properties](https://fsharpforfunandprofit.com/posts/property-based-testing-2/)
-      - [ ] Encoder/Decoder Tests
+      - [O] Encoder/Decoder Tests
         - [ ] Combination 1: Encode with nim, decode with python
         - [ ] Combination 2: Encode with python, decode with nim
         - [X] Combination 3: Encode with nim, decode with nim

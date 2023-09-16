@@ -1,7 +1,7 @@
 name: Github Actions
 on: [push, pull_request]
 jobs:
-  build:
+  test:
     strategy:
       fail-fast: false
       matrix:
@@ -17,6 +17,8 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: '3.11'
+    - run: pip install hypothesis python-osc
     - run: nimble test -y
     - run: nimble test --gc:orc -y
     - run: nimble py -y
+    - run: nimble pyproptest -y

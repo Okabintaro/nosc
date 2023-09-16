@@ -194,14 +194,6 @@ suite "Parsing OSC Messages(Ported from python-osc)":
     check(msg.params.len == 1)
     check(msg.params[0].arrayVal.len == 512)
 
-# proc roundTripTest(message: OscMessage) =
-#   var buffer = newStringOfCap(512)
-#   let len = buffer.writeMessage(message)
-#   check(len == buffer.len)
-#   check(len %% 4 == 0)
-#   let parsed = parseMessage(buffer)
-#   check(parsed == message)
-
 var r = initRand(42)
 proc randomTime(): Time =
   let unixSecs: float64 = r.rand(float64.high)

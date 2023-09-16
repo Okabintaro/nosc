@@ -1,7 +1,7 @@
 import noscpy
 
 # Create a new message with the address "/test/string" and a few arguments.
-msg = noscpy.message("/test/string", [1, "Hello World", 1.23, False, True])
+msg = noscpy.message("/test/string", [1, "Hello World", 1.23, False, True, b"Hello"])
 # Acceess the arguments by their index.
 print(msg.str())
 assert msg.arg(0) == 1
@@ -11,6 +11,7 @@ assert isinstance(f, float)
 assert abs(f - 1.23) < 0.0001
 assert msg.arg(3) is False
 assert msg.arg(4) is True
+assert msg.arg(5) == b"Hello"
 
 # Serialize the message into a datagram and back again.
 msg_dgram = msg.dgram()

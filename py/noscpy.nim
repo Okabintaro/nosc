@@ -8,6 +8,7 @@
 ## 
 import nimpy
 import nimpy/py_types
+import nimpy/py_lib
 import pytypes
 import nosc
 import nosc/hexprint
@@ -56,6 +57,8 @@ proc message(address: string, args: seq[PyObject]): OscMessage {.exportpy.} =
       of pbFloat:
         vals.add(%a.to(float32))
         # TODO: Fallback to float64 if float32 is not enough
+      of pbBytes:
+        vals.add(%%a.to(string))
       of pbString:
         vals.add(%a.to(string))
       of pbBool:
@@ -79,9 +82,17 @@ proc arg(self: OscMessage, index: int): PPyObject {.exportpy.} =
       return val.floatVal.nimValueToPy()
     of oscString:
       return val.strVal.nimValueToPy()
+    of oscBlob:
+      return val.blobVal.nimStringAsBytes()
     of oscTrue:
       return true.nimValueToPy()
     of oscFalse:
       return false.nimValueToPy()
     else:
       raise newException(ValueError, "Unsupported OSC type: " & $val.kind)
+
+
+proc printType(arg: PyObject) {.exportpy.} =
+  let pt = baseType(arg.rawPyObj)
+  echo "arg: ", pt
+

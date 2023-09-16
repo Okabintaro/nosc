@@ -3,14 +3,14 @@ import std/parseutils
 import std/colors
 import std/strutils
 import nosc/stream
+import nosc/errors
+
+export OscParseError
+
 # On windows and nimscript std/times gives an error:
 # nim-2.0.0\lib\windows\winlean.nim(844, 20) Error: VM does not support 'cast' from tyPointer to tyProc
 when not (defined(windows) and defined(nimscript)):
   import std/times
-
-type
-  OscParseError* = object of CatchableError
-
 
 proc fractionToNano*(fraction: uint32): uint32 =
   let frac = (fraction.float64 * 1_000_000_000) / (1 shl 32).float64
@@ -99,6 +99,7 @@ proc `%`*(v: int32): OscValue = OscValue(kind: oscInt, intVal: v)
 proc `%`*(v: int64): OscValue = OscValue(kind: oscBigInt, bigIntVal: v)
 proc `%`*(v: float32): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: string): OscValue = OscValue(kind: oscString, strVal: v)
+proc `%%`*(v: string): OscValue = OscValue(kind: oscBlob, blobVal: v)
 proc `%`*(v: OscTime): OscValue = OscValue(kind: oscTime, timeVal: v)
 proc `%`*(v: char): OscValue = OscValue(kind: oscChar, charVal: v)
 proc `%`*(v: OscColor): OscValue = OscValue(kind: oscColor, colorVal: v)
@@ -238,7 +239,7 @@ proc readOscTime(payload: string, i: var int): OscTime =
 
 proc readOscColor(payload: string, i: var int): OscColor =
   if i + 4 > payload.len:
-    raise newException(NotEnoughBytes, "Not enough bytes to read color")
+    raise newException(OscParseError, "Not enough bytes to read color")
   proc readOscColorSlow(payload: string, i: var int): OscColor =
     result.r = payload[i].byte; inc i
     result.g = payload[i].byte; inc i
@@ -255,7 +256,7 @@ proc readOscColor(payload: string, i: var int): OscColor =
 
 proc readOscMidi(payload: string, i: var int): OscMidi =
   if i + 4 > payload.len:
-    raise newException(NotEnoughBytes, "Not enough bytes to read midi")
+    raise newException(OscParseError, "Not enough bytes to read midi")
   proc readOscMidiSlow(payload: string, i: var int): OscMidi =
     result.portId = payload[i].byte; inc i
     result.status = payload[i].byte; inc i
@@ -292,8 +293,10 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         value = OscValue(kind: oscString, strVal: readPaddedStr(payload, i))
       of 'b':
         var length = readBe32[int32](payload, i)
-        if i + length > length:
-          raise newException(NotEnoughBytes, "Not enough bytes to read blob")
+        if length < 0:
+          raise newException(OscParseError, "Payload length to be positive")
+        if i + length > payload.len:
+          raise newException(OscParseError, "Not enough bytes to read blob")
         let val: string = payload[i..<i+length]
         value = OscValue(kind: oscBlob, blobVal: val)
         i += padded4(length)
@@ -358,11 +361,8 @@ func parseMessage*(data: string): OscMessage {.raises: [OscParseError].} =
   # NOTE: This is kind of ugly passing i and j as var, but it works
   # Need to read some other parsers to see how they do it
   var j: int = 0
-  try:
-    let params = readArguments(data, typeTags, k, j)
-    result.params = params
-  except NotEnoughBytes:
-    raise newException(OscParseError, "Not enough bytes in payload")
+  let params = readArguments(data, typeTags, k, j)
+  result.params = params
 
 
 proc addTags*(buffer: var string, args: seq[OscValue]) =
