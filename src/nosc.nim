@@ -238,7 +238,7 @@ proc readPaddedStr(payload: string, i: var int): string =
   ## Parse OSC String, returning the length of the \0 padded string.
   # TODO: See if we can parse without allocating the string in parseUntil
   # https://nim-lang.org/docs/manual_experimental.html#view-types
-  if i > payload.len:
+  if i >= payload.len:
     raise newException(OscParseError, "Not enough bytes to read string")
   let buf = payload[i..<payload.len]
   let len = buf.parseUntil(result, '\0')
@@ -358,7 +358,7 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
 func readMessage(data: string, i: var int): OscMessage {.raises: [OscParseError].} =
   ## Parse the given data into an OscMessage object.
   ## Raise an OSCParseError if the data is invalid.
-  if i > data.len:
+  if i >= data.len:
     raise newException(OscParseError, "Message is too small")
   if data[i] != '/':
     raise newException(OscParseError, "Invalid address, no `/` in the beginning")
