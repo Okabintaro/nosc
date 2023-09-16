@@ -21,8 +21,7 @@ static:
     roundTripTest "Int", OscMessage(address: "/SYNC", params: @[%123123])
     roundTripTest "Float", OscMessage(address: "/SYNC", params: @[%1.0])
     roundTripTest "String", OscMessage(address: "/SYNC", params: @[%"Hello World!"])
-    const test_blob = OscValue(kind: oscBlob, blobVal: "stuff\x00\x00\x00")
-    roundTripTest "Blob", OscMessage(address: "/SYNC", params: @[test_blob])
+    roundTripTest "Blob", OscMessage(address: "/SYNC", params: @[%%"stuff\x00\x00\x00"])
   
     # Non Standard Types
     roundTripTest "Double", OscMessage(address: "/SYNC", params: @[%42.1337.toOscDouble])

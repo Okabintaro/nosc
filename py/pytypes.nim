@@ -49,7 +49,3 @@ proc baseType*(o: PPyObject): PyBaseType =
 
   returnIfSubclass(Py_TPFLAGS_INT_SUBCLASS or Py_TPFLAGS_LONG_SUBCLASS, pbLong)
   # if we have not returned until here, `pbUnknown` is returned
-
-
-proc nimStringAsBytes*(v: string): PPyObject {.inline.} =
-  return pyLib.Py_BuildValue("y#", v.cstring, v.len.cint)

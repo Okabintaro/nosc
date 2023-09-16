@@ -83,7 +83,7 @@ proc arg(self: OscMessage, index: int): PPyObject {.exportpy.} =
     of oscString:
       return val.strVal.nimValueToPy()
     of oscBlob:
-      return val.blobVal.nimStringAsBytes()
+      return val.blobVal.nimValueToPy()
     of oscTrue:
       return true.nimValueToPy()
     of oscFalse:

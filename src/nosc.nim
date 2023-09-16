@@ -72,7 +72,7 @@ type
     of oscInt: intVal*: int32
     of oscFloat: floatVal*: float32
     of oscString: strVal*: string
-    of oscBlob: blobVal*: string
+    of oscBlob: blobVal*: seq[byte]
     of oscTrue: discard
     of oscFalse: discard
     of oscNil: discard
@@ -99,7 +99,8 @@ proc `%`*(v: int32): OscValue = OscValue(kind: oscInt, intVal: v)
 proc `%`*(v: int64): OscValue = OscValue(kind: oscBigInt, bigIntVal: v)
 proc `%`*(v: float32): OscValue = OscValue(kind: oscFloat, floatVal: v) 
 proc `%`*(v: string): OscValue = OscValue(kind: oscString, strVal: v)
-proc `%%`*(v: string): OscValue = OscValue(kind: oscBlob, blobVal: v)
+proc `%`*(v: seq[byte]): OscValue = OscValue(kind: oscBlob, blobVal: v)
+proc `%%`*(v: string): OscValue = OscValue(kind: oscBlob, blobVal: @(v.toOpenArrayByte(0, v.high)))
 proc `%`*(v: OscTime): OscValue = OscValue(kind: oscTime, timeVal: v)
 proc `%`*(v: char): OscValue = OscValue(kind: oscChar, charVal: v)
 proc `%`*(v: OscColor): OscValue = OscValue(kind: oscColor, colorVal: v)
@@ -215,9 +216,17 @@ proc add(buffer: var string, val: OscMidi) {.inline.} =
 
 proc addPaddedStr*(buffer: var string, val: string) {.inline.} =
   buffer.add(val)
+  # In a string you always want to pad with at least one '\0'
   let rem = 4 - (val.len %% 4)
   for i in 0..<rem: buffer.add('\0')
 
+proc addBlob*(buffer: var string, val: openArray[byte]) {.inline.} =
+  # TODO: Use memcpy if possible
+  for c in val: buffer.add(c)
+  # In a blob you don't need the 0 terminator
+  if val.len %% 4 != 0:
+    let rem = 4 - (val.len %% 4)
+    for i in 0..<rem: buffer.add('\0')
 
 proc readPaddedStr(payload: string, i: var int): string =
   ## Parse OSC String, returning the length of the \0 padded string.
@@ -297,7 +306,7 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
           raise newException(OscParseError, "Payload length to be positive")
         if i + length > payload.len:
           raise newException(OscParseError, "Not enough bytes to read blob")
-        let val: string = payload[i..<i+length]
+        let val: seq[byte] = @(payload.toOpenArrayByte(i, i+length-1))
         value = OscValue(kind: oscBlob, blobVal: val)
         i += padded4(length)
       of 'T':
@@ -401,7 +410,7 @@ proc writeArguments*(buffer: var string, args: seq[OscValue], pad: bool = true) 
         addPaddedStr(buffer, arg.strVal)
       of oscBlob:
         addBe32[int32](buffer, arg.blobVal.len.int32)
-        addPaddedStr(buffer, arg.blobVal)
+        addBlob(buffer, arg.blobVal)
       of oscTrue, oscFalse, oscNil, oscInf:
         discard
       of oscArray:

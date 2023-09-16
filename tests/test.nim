@@ -109,7 +109,7 @@ suite "Parsing OSC Messages(Ported from python-osc)":
         "\x00\x00\x00\x08stuff\x00\x00\x00" # b"stuff\x00\x00\x00"
 
     let message = parseMessage(DGRAM_ALL_STANDARD_TYPES_OF_PARAMS)
-    check(message == OscMessage(address: "/SYNC", params: @[%3, %2.0'f32, %"ABC", OscValue(kind: oscBlob, blobVal: "stuff\x00\x00\x00")]))
+    check(message == OscMessage(address: "/SYNC", params: @[%3, %2.0'f32, %"ABC", %%"stuff\x00\x00\x00"]))
 
   test "some non-standard types":
     const DGRAM_ALL_NON_STANDARD_TYPES_OF_PARAMS =
@@ -220,8 +220,7 @@ suite "Round Trip Tests":
   roundTripTest "Int", OscMessage(address: "/SYNC", params: @[%123123])
   roundTripTest "Float", OscMessage(address: "/SYNC", params: @[%1.0])
   roundTripTest "String", OscMessage(address: "/SYNC", params: @[%"Hello World!"])
-  const test_blob = OscValue(kind: oscBlob, blobVal: "stuff\x00\x00\x00")
-  roundTripTest "Blob", OscMessage(address: "/SYNC", params: @[test_blob])
+  roundTripTest "Blob", OscMessage(address: "/SYNC", params: @[%%"stuff\x00\x00\x00"])
 
   # Non Standard Types
   roundTripTest "Double", OscMessage(address: "/SYNC", params: @[%42.1337.toOscDouble])
