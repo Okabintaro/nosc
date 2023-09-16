@@ -22,8 +22,16 @@
     <div class="container">
       <h1 class="title">Index</h1>
       Modules: <a href="nosc.html">nosc</a>, <a href="nosc/errors.html">nosc/errors</a>, <a href="nosc/stream.html">nosc/stream</a>.<br/><p /><h2>API symbols</h2>
-<dl><dt><a name="%60%25%25%60" href="#%60%25%25%60"><span>`%%`:</span></a></dt><dd><ul class="simple">
+<dl><dt><a name="%60%24%60" href="#%60%24%60"><span>`$`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="nosc: proc `$`(msg: OscMessage): string" href="nosc.html#%24%2COscMessage">nosc: proc `$`(msg: OscMessage): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="nosc: proc `$`(msg: OscValue): string" href="nosc.html#%24%2COscValue">nosc: proc `$`(msg: OscValue): string</a></li>
+          </ul></dd>
+<dt><a name="%60%25%25%60" href="#%60%25%25%60"><span>`%%`:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc `%%`(v: float64): OscValue" href="nosc.html#%25%25%2Cfloat64">nosc: proc `%%`(v: float64): OscValue</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="nosc: proc `%%`(v: string): OscValue" href="nosc.html#%25%25%2Cstring">nosc: proc `%%`(v: string): OscValue</a></li>
           </ul></dd>
 <dt><a name="%60%25%60" href="#%60%25%60"><span>`%`:</span></a></dt><dd><ul class="simple">
@@ -64,6 +72,10 @@
 <li><a class="reference external"
           data-doc-search-tag="stream: proc add(buffer: var string; val: byte)" href="nosc/stream.html#add%2Cstring%2Cbyte">stream: proc add(buffer: var string; val: byte)</a></li>
           </ul></dd>
+<dt><a name="addArguments" href="#addArguments"><span>addArguments:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)" href="nosc.html#addArguments%2Cstring%2Cseq%5BOscValue%5D%2Cbool">nosc: proc addArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)</a></li>
+          </ul></dd>
 <dt><a name="addBe32" href="#addBe32"><span>addBe32:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="stream: proc addBe32[T: Bit32Type](buffer: var string; val: T)" href="nosc/stream.html#addBe32%2Cstring%2CT">stream: proc addBe32[T: Bit32Type](buffer: var string; val: T)</a></li>
@@ -75,6 +87,18 @@
 <dt><a name="addBlob" href="#addBlob"><span>addBlob:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc addBlob(buffer: var string; val: openArray[byte])" href="nosc.html#addBlob%2Cstring%2CopenArray%5Bbyte%5D">nosc: proc addBlob(buffer: var string; val: openArray[byte])</a></li>
+          </ul></dd>
+<dt><a name="addBundle" href="#addBundle"><span>addBundle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addBundle(buffer: var string; bundle: OscBundle)" href="nosc.html#addBundle%2Cstring%2COscBundle">nosc: proc addBundle(buffer: var string; bundle: OscBundle)</a></li>
+          </ul></dd>
+<dt><a name="addMessage" href="#addMessage"><span>addMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addMessage(buffer: var string; msg: OscMessage)" href="nosc.html#addMessage%2Cstring%2COscMessage">nosc: proc addMessage(buffer: var string; msg: OscMessage)</a></li>
+          </ul></dd>
+<dt><a name="addPacket" href="#addPacket"><span>addPacket:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc addPacket(buffer: var string; packet: OscPacket)" href="nosc.html#addPacket%2Cstring%2COscPacket">nosc: proc addPacket(buffer: var string; packet: OscPacket)</a></li>
           </ul></dd>
 <dt><a name="addPaddedStr" href="#addPaddedStr"><span>addPaddedStr:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -98,6 +122,8 @@
           </ul></dd>
 <dt><a name="dgram" href="#dgram"><span>dgram:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="nosc: proc dgram(msg: OscBundle): string" href="nosc.html#dgram%2COscBundle">nosc: proc dgram(msg: OscBundle): string</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="nosc: proc dgram(msg: OscMessage): string" href="nosc.html#dgram%2COscMessage">nosc: proc dgram(msg: OscMessage): string</a></li>
           </ul></dd>
 <dt><a name="fractionToNano" href="#fractionToNano"><span>fractionToNano:</span></a></dt><dd><ul class="simple">
@@ -107,6 +133,10 @@
 <dt><a name="isImmediate" href="#isImmediate"><span>isImmediate:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc isImmediate(time: OscTime): bool" href="nosc.html#isImmediate%2COscTime">nosc: proc isImmediate(time: OscTime): bool</a></li>
+          </ul></dd>
+<dt><a name="msg" href="#msg"><span>msg:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: template msg(addrs: string; arguments: untyped): OscMessage" href="nosc.html#msg.t%2Cstring%2Cuntyped">nosc: template msg(addrs: string; arguments: untyped): OscMessage</a></li>
           </ul></dd>
 <dt><a name="nanoToFraction" href="#nanoToFraction"><span>nanoToFraction:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -123,6 +153,14 @@
 <dt><a name="oscBlob" href="#oscBlob"><span>oscBlob:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: OscType.oscBlob" href="nosc.html#oscBlob">nosc: OscType.oscBlob</a></li>
+          </ul></dd>
+<dt><a name="oscBundle" href="#oscBundle"><span>oscBundle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: OscPacketKind.oscBundle" href="nosc.html#oscBundle">nosc: OscPacketKind.oscBundle</a></li>
+          </ul></dd>
+<dt><a name="OscBundle" href="#OscBundle"><span>OscBundle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: object OscBundle" href="nosc.html#OscBundle_2">nosc: object OscBundle</a></li>
           </ul></dd>
 <dt><a name="oscChar" href="#oscChar"><span>oscChar:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -164,6 +202,10 @@
 <li><a class="reference external"
           data-doc-search-tag="nosc: object OscMessage" href="nosc.html#OscMessage">nosc: object OscMessage</a></li>
           </ul></dd>
+<dt><a name="oscMessage" href="#oscMessage"><span>oscMessage:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: OscPacketKind.oscMessage" href="nosc.html#oscMessage_2">nosc: OscPacketKind.oscMessage</a></li>
+          </ul></dd>
 <dt><a name="OscMidi" href="#OscMidi"><span>OscMidi:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: object OscMidi" href="nosc.html#OscMidi">nosc: object OscMidi</a></li>
@@ -179,6 +221,14 @@
 <dt><a name="OscNil" href="#OscNil"><span>OscNil:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nosc: const OscNil" href="nosc.html#OscNil_2">nosc: const OscNil</a></li>
+          </ul></dd>
+<dt><a name="OscPacket" href="#OscPacket"><span>OscPacket:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: object OscPacket" href="nosc.html#OscPacket">nosc: object OscPacket</a></li>
+          </ul></dd>
+<dt><a name="OscPacketKind" href="#OscPacketKind"><span>OscPacketKind:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: enum OscPacketKind" href="nosc.html#OscPacketKind">nosc: enum OscPacketKind</a></li>
           </ul></dd>
 <dt><a name="OscParseError" href="#OscParseError"><span>OscParseError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -224,6 +274,18 @@
 <li><a class="reference external"
           data-doc-search-tag="stream: proc readBe64[T: Bit64Type](s: string; i: var int): T" href="nosc/stream.html#readBe64%2Cstring%2Cint">stream: proc readBe64[T: Bit64Type](s: string; i: var int): T</a></li>
           </ul></dd>
+<dt><a name="readBundle" href="#readBundle"><span>readBundle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc readBundle(data: string): OscBundle" href="nosc.html#readBundle%2Cstring">nosc: proc readBundle(data: string): OscBundle</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="nosc: proc readBundle(data: string; i: var int): OscBundle" href="nosc.html#readBundle%2Cstring%2Cint">nosc: proc readBundle(data: string; i: var int): OscBundle</a></li>
+          </ul></dd>
+<dt><a name="readPacket" href="#readPacket"><span>readPacket:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nosc: proc readPacket(data: string): OscPacket" href="nosc.html#readPacket%2Cstring">nosc: proc readPacket(data: string): OscPacket</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="nosc: proc readPacket(data: string; i: var int): OscPacket" href="nosc.html#readPacket%2Cstring%2Cint">nosc: proc readPacket(data: string; i: var int): OscPacket</a></li>
+          </ul></dd>
 <dt><a name="swap" href="#swap"><span>swap:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="stream: proc swap(v: float32): float32" href="nosc/stream.html#swap%2Cfloat32">stream: proc swap(v: float32): float32</a></li>
@@ -260,19 +322,11 @@
 <li><a class="reference external"
           data-doc-search-tag="nosc: proc toTime(time: OscTime): Time" href="nosc.html#toTime%2COscTime">nosc: proc toTime(time: OscTime): Time</a></li>
           </ul></dd>
-<dt><a name="writeArguments" href="#writeArguments"><span>writeArguments:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)" href="nosc.html#writeArguments%2Cstring%2Cseq%5BOscValue%5D%2Cbool">nosc: proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)</a></li>
-          </ul></dd>
-<dt><a name="writeMessage" href="#writeMessage"><span>writeMessage:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="nosc: proc writeMessage(buffer: var string; msg: OscMessage): int" href="nosc.html#writeMessage%2Cstring%2COscMessage">nosc: proc writeMessage(buffer: var string; msg: OscMessage): int</a></li>
-          </ul></dd>
 </dl>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-16 15:51:47 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-16 19:01:17 UTC</small>
       </div>
     </div>
   </div>

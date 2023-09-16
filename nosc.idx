@@ -3,56 +3,77 @@ nim	fractionToNano	nosc.html#fractionToNano,uint32	proc fractionToNano(fraction:
 nim	nanoToFraction	nosc.html#nanoToFraction,uint32	proc nanoToFraction(nanoseconds: uint32): uint32		19
 nim	OscTime	nosc.html#OscTime	object OscTime		23
 nim	OscTimeImmediate	nosc.html#OscTimeImmediate	const OscTimeImmediate		27
-nim	isImmediate	nosc.html#isImmediate,OscTime	proc isImmediate(time: OscTime): bool		29
-nim	OscColor	nosc.html#OscColor	object OscColor		33
-nim	toColor	nosc.html#toColor,OscColor	proc toColor(c: OscColor): Color		39
-nim	toOscColor	nosc.html#toOscColor,Color,uint8	proc toOscColor(c: Color; alpha: uint8): OscColor		42
-nim	OscMidi	nosc.html#OscMidi	object OscMidi		46
-nim	oscFloat	nosc.html#oscFloat	OscType.oscFloat		54
-nim	oscInt	nosc.html#oscInt	OscType.oscInt		54
-nim	oscString	nosc.html#oscString	OscType.oscString		54
-nim	oscBlob	nosc.html#oscBlob	OscType.oscBlob		54
-nim	oscTrue	nosc.html#oscTrue	OscType.oscTrue		54
-nim	oscFalse	nosc.html#oscFalse	OscType.oscFalse		54
-nim	oscNil	nosc.html#oscNil	OscType.oscNil		54
-nim	oscInf	nosc.html#oscInf	OscType.oscInf		54
-nim	oscArray	nosc.html#oscArray	OscType.oscArray		54
-nim	oscTime	nosc.html#oscTime_2	OscType.oscTime		54
-nim	oscBigInt	nosc.html#oscBigInt	OscType.oscBigInt		54
-nim	oscDouble	nosc.html#oscDouble	OscType.oscDouble		54
-nim	oscChar	nosc.html#oscChar	OscType.oscChar		54
-nim	oscColor	nosc.html#oscColor_2	OscType.oscColor		54
-nim	oscMidi	nosc.html#oscMidi_2	OscType.oscMidi		54
-nim	OscType	nosc.html#OscType	enum OscType		54
-nim	OscValue	nosc.html#OscValue	object OscValue		70
-nim	OscMessage	nosc.html#OscMessage	object OscMessage		87
-nim	`%`	nosc.html#%,bool	proc `%`(b: bool): OscValue		92
-nim	`%`	nosc.html#%,int	proc `%`(v: int): OscValue		97
-nim	`%`	nosc.html#%,int32	proc `%`(v: int32): OscValue		98
-nim	`%`	nosc.html#%,int64	proc `%`(v: int64): OscValue		99
-nim	`%`	nosc.html#%,float32	proc `%`(v: float32): OscValue		100
-nim	`%`	nosc.html#%,string	proc `%`(v: string): OscValue		101
-nim	`%`	nosc.html#%,seq[byte]	proc `%`(v: seq[byte]): OscValue		102
-nim	`%%`	nosc.html#%%,string	proc `%%`(v: string): OscValue		103
-nim	`%`	nosc.html#%,OscTime	proc `%`(v: OscTime): OscValue		104
-nim	`%`	nosc.html#%,char	proc `%`(v: char): OscValue		105
-nim	`%`	nosc.html#%,OscColor	proc `%`(v: OscColor): OscValue		106
-nim	`%`	nosc.html#%,OscMidi	proc `%`(v: OscMidi): OscValue		107
-nim	toOscDouble	nosc.html#toOscDouble,float64	proc toOscDouble(v: float64): OscValue		111
-nim	`%`	nosc.html#%,openArray[T]	proc `%`[T](elements: openArray[T]): OscValue		115
-nim	`%`	nosc.html#%,OscValue	proc `%`(v: OscValue): OscValue		119
-nim	toTime	nosc.html#toTime,OscTime	proc toTime(time: OscTime): Time		129
-nim	toOscTime	nosc.html#toOscTime,Time	proc toOscTime(time: Time): OscTime		141
-nim	`%`	nosc.html#%,Time	proc `%`(v: Time): OscValue		146
-nim	`==`	nosc.html#==,OscValue,OscValue	proc `==`(a, b: OscValue): bool		150
-nim	OscInf	nosc.html#OscInf_2	const OscInf		188
-nim	OscNil	nosc.html#OscNil_2	const OscNil		189
-nim	addPaddedStr	nosc.html#addPaddedStr,string,string	proc addPaddedStr(buffer: var string; val: string)		218
-nim	addBlob	nosc.html#addBlob,string,openArray[byte]	proc addBlob(buffer: var string; val: openArray[byte])		224
-nim	parseMessage	nosc.html#parseMessage,string	proc parseMessage(data: string): OscMessage		353
-nim	addTags	nosc.html#addTags,string,seq[OscValue]	proc addTags(buffer: var string; args: seq[OscValue])		378
-nim	addPaddedTags	nosc.html#addPaddedTags,string,seq[OscValue]	proc addPaddedTags(buffer: var string; args: seq[OscValue])		392
-nim	writeArguments	nosc.html#writeArguments,string,seq[OscValue],bool	proc writeArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)		402
-nim	writeMessage	nosc.html#writeMessage,string,OscMessage	proc writeMessage(buffer: var string; msg: OscMessage): int		433
-nim	dgram	nosc.html#dgram,OscMessage	proc dgram(msg: OscMessage): string		443
-nimgrp	%	nosc.html#%-procs-all	proc		92
+nim	isImmediate	nosc.html#isImmediate,OscTime	proc isImmediate(time: OscTime): bool		33
+nim	OscColor	nosc.html#OscColor	object OscColor		37
+nim	toColor	nosc.html#toColor,OscColor	proc toColor(c: OscColor): Color		43
+nim	toOscColor	nosc.html#toOscColor,Color,uint8	proc toOscColor(c: Color; alpha: uint8): OscColor		46
+nim	OscMidi	nosc.html#OscMidi	object OscMidi		50
+nim	oscFloat	nosc.html#oscFloat	OscType.oscFloat		58
+nim	oscInt	nosc.html#oscInt	OscType.oscInt		58
+nim	oscString	nosc.html#oscString	OscType.oscString		58
+nim	oscBlob	nosc.html#oscBlob	OscType.oscBlob		58
+nim	oscTrue	nosc.html#oscTrue	OscType.oscTrue		58
+nim	oscFalse	nosc.html#oscFalse	OscType.oscFalse		58
+nim	oscNil	nosc.html#oscNil	OscType.oscNil		58
+nim	oscInf	nosc.html#oscInf	OscType.oscInf		58
+nim	oscArray	nosc.html#oscArray	OscType.oscArray		58
+nim	oscTime	nosc.html#oscTime_2	OscType.oscTime		58
+nim	oscBigInt	nosc.html#oscBigInt	OscType.oscBigInt		58
+nim	oscDouble	nosc.html#oscDouble	OscType.oscDouble		58
+nim	oscChar	nosc.html#oscChar	OscType.oscChar		58
+nim	oscColor	nosc.html#oscColor_2	OscType.oscColor		58
+nim	oscMidi	nosc.html#oscMidi_2	OscType.oscMidi		58
+nim	OscType	nosc.html#OscType	enum OscType		58
+nim	OscValue	nosc.html#OscValue	object OscValue		74
+nim	OscMessage	nosc.html#OscMessage	object OscMessage		91
+nim	`%`	nosc.html#%,bool	proc `%`(b: bool): OscValue		96
+nim	`%`	nosc.html#%,int	proc `%`(v: int): OscValue		101
+nim	`%`	nosc.html#%,int32	proc `%`(v: int32): OscValue		102
+nim	`%`	nosc.html#%,int64	proc `%`(v: int64): OscValue		103
+nim	`%`	nosc.html#%,float32	proc `%`(v: float32): OscValue		104
+nim	`%`	nosc.html#%,string	proc `%`(v: string): OscValue		105
+nim	`%`	nosc.html#%,seq[byte]	proc `%`(v: seq[byte]): OscValue		106
+nim	`%%`	nosc.html#%%,string	proc `%%`(v: string): OscValue		107
+nim	`%`	nosc.html#%,OscTime	proc `%`(v: OscTime): OscValue		108
+nim	`%`	nosc.html#%,char	proc `%`(v: char): OscValue		109
+nim	`%`	nosc.html#%,OscColor	proc `%`(v: OscColor): OscValue		110
+nim	`%`	nosc.html#%,OscMidi	proc `%`(v: OscMidi): OscValue		111
+nim	`%%`	nosc.html#%%,float64	proc `%%`(v: float64): OscValue		112
+nim	toOscDouble	nosc.html#toOscDouble,float64	proc toOscDouble(v: float64): OscValue		116
+nim	`%`	nosc.html#%,openArray[T]	proc `%`[T](elements: openArray[T]): OscValue		120
+nim	`%`	nosc.html#%,OscValue	proc `%`(v: OscValue): OscValue		124
+nim	toTime	nosc.html#toTime,OscTime	proc toTime(time: OscTime): Time		134
+nim	toOscTime	nosc.html#toOscTime,Time	proc toOscTime(time: Time): OscTime		146
+nim	`%`	nosc.html#%,Time	proc `%`(v: Time): OscValue		151
+nim	`==`	nosc.html#==,OscValue,OscValue	proc `==`(a, b: OscValue): bool		155
+nim	OscInf	nosc.html#OscInf_2	const OscInf		193
+nim	OscNil	nosc.html#OscNil_2	const OscNil		194
+nim	addPaddedStr	nosc.html#addPaddedStr,string,string	proc addPaddedStr(buffer: var string; val: string)		223
+nim	addBlob	nosc.html#addBlob,string,openArray[byte]	proc addBlob(buffer: var string; val: openArray[byte])		229
+nim	parseMessage	nosc.html#parseMessage,string	proc parseMessage(data: string): OscMessage		381
+nim	addTags	nosc.html#addTags,string,seq[OscValue]	proc addTags(buffer: var string; args: seq[OscValue])		388
+nim	addPaddedTags	nosc.html#addPaddedTags,string,seq[OscValue]	proc addPaddedTags(buffer: var string; args: seq[OscValue])		402
+nim	addArguments	nosc.html#addArguments,string,seq[OscValue],bool	proc addArguments(buffer: var string; args: seq[OscValue]; pad: bool = true)		412
+nim	addMessage	nosc.html#addMessage,string,OscMessage	proc addMessage(buffer: var string; msg: OscMessage)		442
+nim	dgram	nosc.html#dgram,OscMessage	proc dgram(msg: OscMessage): string		449
+nim	oscMessage	nosc.html#oscMessage_2	OscPacketKind.oscMessage		457
+nim	oscBundle	nosc.html#oscBundle	OscPacketKind.oscBundle		457
+nim	OscPacketKind	nosc.html#OscPacketKind	enum OscPacketKind		457
+nim	OscPacket	nosc.html#OscPacket	object OscPacket		461
+nim	OscBundle	nosc.html#OscBundle_2	object OscBundle		466
+nim	readPacket	nosc.html#readPacket,string,int	proc readPacket(data: string; i: var int): OscPacket		470
+nim	readBundle	nosc.html#readBundle,string,int	proc readBundle(data: string; i: var int): OscBundle		472
+nim	readBundle	nosc.html#readBundle,string	proc readBundle(data: string): OscBundle		493
+nim	readPacket	nosc.html#readPacket,string	proc readPacket(data: string): OscPacket		507
+nim	addBundle	nosc.html#addBundle,string,OscBundle	proc addBundle(buffer: var string; bundle: OscBundle)		512
+nim	addPacket	nosc.html#addPacket,string,OscPacket	proc addPacket(buffer: var string; packet: OscPacket)		514
+nim	dgram	nosc.html#dgram,OscBundle	proc dgram(msg: OscBundle): string		532
+nim	msg	nosc.html#msg.t,string,untyped	template msg(addrs: string; arguments: untyped): OscMessage		560
+nim	`$`	nosc.html#$,OscValue	proc `$`(msg: OscValue): string		564
+nim	`$`	nosc.html#$,OscMessage	proc `$`(msg: OscMessage): string		595
+nimgrp	$	nosc.html#$-procs-all	proc		564
+nimgrp	readpacket	nosc.html#readPacket-procs-all	proc		470
+nimgrp	dgram	nosc.html#dgram-procs-all	proc		449
+nimgrp	readbundle	nosc.html#readBundle-procs-all	proc		472
+nimgrp	%%	nosc.html#%%-procs-all	proc		107
+nimgrp	%	nosc.html#%-procs-all	proc		96
