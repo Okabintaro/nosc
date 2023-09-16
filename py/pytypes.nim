@@ -1,7 +1,9 @@
+# Copied and edited type helpers from nimpy/py_nim_marshalling, since it's not exposed by default
+# MIT License, Copyright (c) 2017 Yuriy Glukhov
+# See LICENSE.nimpy for license
 import nimpy/py_lib as lib
 import nimpy/[py_types, py_utils]
 
-# Copied from nimpy, since it's not exposed by default
 type
   PyBaseType* = enum
     pbUnknown
@@ -16,6 +18,7 @@ type
     pbDict
     pbString
     pbObject
+    pbBool
 
 
 proc baseType*(o: PPyObject): PyBaseType =
@@ -27,20 +30,22 @@ proc baseType*(o: PPyObject): PyBaseType =
     if checkObjSubclass(o, pyt):
       return nimt
 
-  # check int types first for backward compatibility with Python2
-  returnIfSubclass(Py_TPFLAGS_INT_SUBCLASS or Py_TPFLAGS_LONG_SUBCLASS, pbLong)
-
-  let checkTypes = { pyLib.PyFloat_Type : pbFloat,
+  let checkTypes = {
+             pyLib.PyFloat_Type : pbFloat,
              pyLib.PyComplex_Type : pbComplex,
+             pyLib.PyBool_Type : pbBool,
              pyLib.PyBytes_Type : pbString,
              pyLib.PyUnicode_Type : pbString,
              pyLib.PyList_Type : pbList,
              pyLib.PyTuple_Type : pbTuple,
-             pyLib.PyDict_Type : pbDict }
+             pyLib.PyDict_Type : pbDict,
+  }
 
   for tup in checkTypes:
     let
       k = tup[0]
       v = tup[1]
     returnIfSubclass(k, v)
+
+  returnIfSubclass(Py_TPFLAGS_INT_SUBCLASS or Py_TPFLAGS_LONG_SUBCLASS, pbLong)
   # if we have not returned until here, `pbUnknown` is returned

@@ -58,7 +58,10 @@ proc message(address: string, args: seq[PyObject]): OscMessage {.exportpy.} =
         # TODO: Fallback to float64 if float32 is not enough
       of pbString:
         vals.add(%a.to(string))
+      of pbBool:
+        vals.add(%a.to(bool))
       else:
+        # TODO: Raise Proper ValueError from python?
         raise newException(ValueError, "Unsupported python type: " & $pt)
 
   let msg = NoscMessage(address: address, params: vals)
@@ -76,5 +79,9 @@ proc arg(self: OscMessage, index: int): PPyObject {.exportpy.} =
       return val.floatVal.nimValueToPy()
     of oscString:
       return val.strVal.nimValueToPy()
+    of oscTrue:
+      return true.nimValueToPy()
+    of oscFalse:
+      return false.nimValueToPy()
     else:
       raise newException(ValueError, "Unsupported OSC type: " & $val.kind)

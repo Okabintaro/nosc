@@ -14,5 +14,9 @@ jobs:
     - uses: jiro4989/setup-nim-action@v1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
     - run: nimble test -y
     - run: nimble test --gc:orc -y
+    - run: nimble py -y

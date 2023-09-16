@@ -78,6 +78,7 @@ sensible_text = st.text(alphabet=sensible_characters, min_size=1)
 standard_osc_arguments = st.one_of(
     st.integers(min_value=-2147483648, max_value=2147483647),
     st.floats(width=32, allow_nan=False, allow_infinity=False),
+    st.booleans(),
     sensible_text,
 )
 osc_message_values = st.lists(standard_osc_arguments)

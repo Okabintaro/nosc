@@ -43,9 +43,9 @@
         - [X] Combination 3: Encode with nim, decode with nim
         - [ ] Combination 4: Encode with python, decode with python
           - Might find bugs in python implementation too
-    - [O] Fuzzing: Maybe also try to generate random messages in nim
-      - [O] [drchaos](https://github.com/status-im/nim-drchaos) seems cool
-        - Stack overflow can happen with too many `[[[[[[` in the typeTags
+    - [O] Fuzzing using [drchaos](https://github.com/status-im/nim-drchaos)
+      - [X] Fuzz the parser
+      - [ ] Try to generate actual messages instead of random bytes
 
 - [ ] Bundles
   - [ ] Read the specs
