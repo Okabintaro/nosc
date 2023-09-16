@@ -1,16 +1,17 @@
 nimTitle	stream	nosc/stream.html	module src/nosc/stream		0
-nim	swap	nosc/stream.html#swap,uint16	proc swap(v: uint16): uint16		35
-nim	swap	nosc/stream.html#swap,uint32	proc swap(v: uint32): uint32		39
-nim	swap	nosc/stream.html#swap,uint64	proc swap(v: uint64): uint64		49
-nim	swap	nosc/stream.html#swap,int32	proc swap(v: int32): int32		63
-nim	swap	nosc/stream.html#swap,int64	proc swap(v: int64): int64		66
-nim	swap	nosc/stream.html#swap,float32	proc swap(v: float32): float32		69
-nim	swap	nosc/stream.html#swap,float64	proc swap(v: float64): float64		72
-nim	addUint32	nosc/stream.html#addUint32,string,uint32	proc addUint32(s: var string; v: uint32)		79
-nim	addUint64	nosc/stream.html#addUint64,string,uint64	proc addUint64(s: var string; v: uint64)		96
-nim	add	nosc/stream.html#add,string,byte	proc add(buffer: var string; val: byte)		117
-nim	addBe32	nosc/stream.html#addBe32,string,T	proc addBe32[T: Bit32Type](buffer: var string; val: T)		121
-nim	addBe64	nosc/stream.html#addBe64,string,T	proc addBe64[T: Bit64Type](buffer: var string; val: T)		125
-nim	readBe32	nosc/stream.html#readBe32,string,int	proc readBe32[T: Bit32Type](s: string; i: var int): T		129
-nim	readBe64	nosc/stream.html#readBe64,string,int	proc readBe64[T: Bit64Type](s: string; i: var int): T		147
-nimgrp	swap	nosc/stream.html#swap-procs-all	proc		35
+nim	NotEnoughBytes	nosc/stream.html#NotEnoughBytes	object NotEnoughBytes		34
+nim	swap	nosc/stream.html#swap,uint16	proc swap(v: uint16): uint16		37
+nim	swap	nosc/stream.html#swap,uint32	proc swap(v: uint32): uint32		41
+nim	swap	nosc/stream.html#swap,uint64	proc swap(v: uint64): uint64		51
+nim	swap	nosc/stream.html#swap,int32	proc swap(v: int32): int32		65
+nim	swap	nosc/stream.html#swap,int64	proc swap(v: int64): int64		68
+nim	swap	nosc/stream.html#swap,float32	proc swap(v: float32): float32		71
+nim	swap	nosc/stream.html#swap,float64	proc swap(v: float64): float64		74
+nim	addUint32	nosc/stream.html#addUint32,string,uint32	proc addUint32(s: var string; v: uint32)		81
+nim	addUint64	nosc/stream.html#addUint64,string,uint64	proc addUint64(s: var string; v: uint64)		98
+nim	add	nosc/stream.html#add,string,byte	proc add(buffer: var string; val: byte)		119
+nim	addBe32	nosc/stream.html#addBe32,string,T	proc addBe32[T: Bit32Type](buffer: var string; val: T)		123
+nim	addBe64	nosc/stream.html#addBe64,string,T	proc addBe64[T: Bit64Type](buffer: var string; val: T)		127
+nim	readBe32	nosc/stream.html#readBe32,string,int	proc readBe32[T: Bit32Type](s: string; i: var int): T		131
+nim	readBe64	nosc/stream.html#readBe64,string,int	proc readBe64[T: Bit64Type](s: string; i: var int): T		151
+nimgrp	swap	nosc/stream.html#swap-procs-all	proc		37
