@@ -11,6 +11,8 @@
 import std/net
 import std/strformat
 import std/strutils
+import std/options
+import nosc/hexprint
 import nosc
 import os
 
@@ -21,10 +23,10 @@ if pc < 2:
 
 let address = paramStr(1)
 let port = Port(paramStr(2).parseInt())
-var prefix = ""
+var prefix = none(string)
 if pc >= 3:
-  prefix = paramStr(3)
-if prefix != "" and not prefix.startsWith("/"):
+  prefix = some(paramStr(3))
+if prefix.isSome and not prefix.get.startsWith("/"):
   echo "error: prefix should be an osc adress and start with /"
   quit(1)
 
@@ -41,20 +43,29 @@ var data = newString(BUFSIZE)
 
 var recvaddr = ""
 var recv_port: Port
-let do_filter = prefix != ""
 while true:
   let len = socket.recvFrom(data, BUFSIZE, recvaddr, recvport)
   discard len # Not really useful, data.len is set.
 
-  try:
-    let msg = parseMessage(data)
-    if do_filter:
-      if msg.address.startsWith(prefix):
+  proc processMessage(msg: OscMessage) =
+    if prefix.isSome:
+      if msg.address.startsWith(prefix.get):
         echo msg
     else:
       echo msg
 
-  except:
-    echo "error parsing ", data, ": ", getCurrentExceptionMsg()
-    discard
+  proc processPacket(pkt: OscPacket) =
+    case pkt.kind:
+      of oscMessage:
+        processMessage(pkt.msg)
+      of oscBundle:
+        for pkt in pkt.bundle.contents:
+          processPacket(pkt)
+
+  try:
+    let packet = readPacket(data)
+    processPacket(packet)
+  except OscParseError as e:
+    echo "error parsing dgram: " & e.msg & "\ndata:"
+    echo hexPrint(data)
 

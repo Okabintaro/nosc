@@ -454,12 +454,12 @@ proc dgram*(msg: OscMessage): string =
 
 # TODO: Move into a separate module?
 type
-  OscPackageKind* = enum
+  OscPacketKind* = enum
     oscMessage,
     oscBundle
 
-  OscPacket = object
-    case kind*: OscPackageKind
+  OscPacket* = object
+    case kind*: OscPacketKind
     of oscMessage: msg*: OscMessage
     of oscBundle: bundle*: OscBundle
 
