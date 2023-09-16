@@ -51,5 +51,12 @@ task pyproptest, "Run property tests using python bindings and hypothesis":
   exec "nim c --app:lib --mm:arc -d:debug --opt:speed --threads:on --out:tests/noscpy.so py/noscpy.nim"
   exec "python3 tests/proptest.py"
 
+
+task fuzz, "Fuzz the osc parser using drchaos":
+  exec """nim --cc:clang -d:useMalloc -t:"-fsanitize=fuzzer,address,undefined" -l:"-fsanitize=fuzzer,address,undefined" -d:release -d:nosignalhandler --threads:off --nomain:on -g --mm:arc c tests/fuzz.nim"""
+  exec "./tests/fuzz"
+
+
+taskRequires "fuzz", "drchaos"
 taskRequires "py", "nimpy"
 taskRequires "pyproptest", "https://github.com/Okabintaro/nimpy#512e0972a"
