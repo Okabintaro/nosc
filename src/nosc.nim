@@ -26,6 +26,10 @@ type
 
 const OscTimeImmediate* = OscTime(seconds: 0, frac: 1)
 
+proc addTime(buffer: var string, time: OscTime) {.inline.} =
+  buffer.addBe32(time.seconds)
+  buffer.addBe32(time.frac)
+
 proc isImmediate*(time: OscTime): bool {.inline.} =
   return time == OscTimeImmediate
 
@@ -86,7 +90,7 @@ type
     of oscMidi: midiVal*: OscMidi
   OscMessage* = object
     address*: string
-    params*: seq[OscValue]
+    args*: seq[OscValue]
 
 # Convert nim types to OSCValue, similar to JsonNode
 proc `%`*(b: bool): OscValue =
@@ -105,6 +109,7 @@ proc `%`*(v: OscTime): OscValue = OscValue(kind: oscTime, timeVal: v)
 proc `%`*(v: char): OscValue = OscValue(kind: oscChar, charVal: v)
 proc `%`*(v: OscColor): OscValue = OscValue(kind: oscColor, colorVal: v)
 proc `%`*(v: OscMidi): OscValue = OscValue(kind: oscMidi, midiVal: v)
+proc `%%`*(v: float64): OscValue = OscValue(kind: oscDouble, doubleVal: v)
   
 
 
@@ -196,7 +201,7 @@ func padded4(length: int): int {.inline} =
     return length
 
 
-proc add(buffer: var string, val: OscColor) {.inline.} =
+proc addColor(buffer: var string, val: OscColor) {.inline.} =
   when nimvm:
     buffer.add(val.r)
     buffer.add(val.g)
@@ -205,7 +210,7 @@ proc add(buffer: var string, val: OscColor) {.inline.} =
   else:
     buffer.addUint32(cast[uint32](val))
 
-proc add(buffer: var string, val: OscMidi) {.inline.} =
+proc addMidi(buffer: var string, val: OscMidi) {.inline.} =
   when nimvm:
     buffer.add(val.portId)
     buffer.add(val.status)
@@ -287,7 +292,7 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
   ## Here payload and typeTags are "streams" with i, j as the current position.
   ## Raise an OSCParseError if the data is invalid.
   const MAX_ARRAY_DEPTH = 64
-  var params: seq[OscValue] = @[]
+  var args: seq[OscValue] = @[]
   while j < typeTags.len:
     var value: OscValue
     let t = typeTags[j]
@@ -324,7 +329,7 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
       of ']':
         if depth == 0:
           raise newException(OscParseError, "Unmatched `]`")
-        return params
+        return args
       of 't':
         value = OscValue(kind: oscTime, timeVal: readOscTime(payload, i))
       of 'h':
@@ -346,33 +351,38 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         # TODO: Add option to surpress this warning or raise error
         # echo "Warning: Unknown type tag: ", t
         continue
-    params.add(value)
+    args.add(value)
 
-  return params
+  return args
 
-func parseMessage*(data: string): OscMessage {.raises: [OscParseError].} =
+func readMessage(data: string, i: var int): OscMessage {.raises: [OscParseError].} =
   ## Parse the given data into an OscMessage object.
   ## Raise an OSCParseError if the data is invalid.
-  if data.len < 4:
+  if i > data.len:
     raise newException(OscParseError, "Message is too small")
-  if data[0] != '/':
+  if data[i] != '/':
     raise newException(OscParseError, "Invalid address, no `/` in the beginning")
 
   # Read address and type tags
-  var k: int = 0
-  result.address = readPaddedStr(data, k)
-  if k >= data.len:
+  result.address = readPaddedStr(data, i)
+  if i >= data.len:
     return
 
   # TODO: Maybe this copy can be avoiced too actually
-  var typeTags = readPaddedStr(data, k)
+  var typeTags = readPaddedStr(data, i)
 
   # Parse the payload/values together with the types
   # NOTE: This is kind of ugly passing i and j as var, but it works
   # Need to read some other parsers to see how they do it
   var j: int = 0
-  let params = readArguments(data, typeTags, k, j)
-  result.params = params
+  result.args = readArguments(data, typeTags, i, j)
+
+
+func parseMessage*(data: string): OscMessage {.raises: [OscParseError].} =
+  ## Parse the given data into an OscMessage object.
+  ## Raise an OSCParseError if the data is invalid.
+  var i = 0
+  readMessage(data, i)
 
 
 proc addTags*(buffer: var string, args: seq[OscValue]) =
@@ -399,7 +409,7 @@ proc addPaddedTags*(buffer: var string, args: seq[OscValue]) =
   let rem = 4 - (len %% 4)
   for i in 0..<rem: buffer.add('\0')
 
-proc writeArguments*(buffer: var string, args: seq[OscValue], pad: bool = true) =
+proc addArguments*(buffer: var string, args: seq[OscValue], pad: bool = true) =
   for arg in args:
     let kind = arg.kind
     case kind:
@@ -415,33 +425,185 @@ proc writeArguments*(buffer: var string, args: seq[OscValue], pad: bool = true) 
       of oscTrue, oscFalse, oscNil, oscInf:
         discard
       of oscArray:
-        buffer.writeArguments(arg.arrayVal, pad=false)
+        buffer.addArguments(arg.arrayVal, pad=false)
       of oscTime:
-        buffer.addBe32(arg.timeVal.seconds)
-        buffer.addBe32(arg.timeVal.frac)
+        buffer.addTime(arg.timeVal)
       of oscBigInt:
         buffer.addBe64(arg.bigIntVal)
       of oscDouble:
         buffer.addBe64(arg.doubleVal)
       of oscColor:
-        buffer.add(arg.colorVal)
+        buffer.addColor(arg.colorVal)
       of oscMidi:
-        buffer.add(arg.midiVal)
+        buffer.addMidi(arg.midiVal)
       of oscChar:
         buffer.addBe32(arg.charVal.int32)
 
-proc writeMessage*(buffer: var string, msg: OscMessage): int =
+proc addMessage*(buffer: var string, msg: OscMessage) =
   ## Write the given OscMessage to a string.
-  ## This is the inverse of parseMessage.
-  
+  ## This is the inverse of readMessage.
   buffer.addPaddedStr(msg.address)
-  buffer.addPaddedTags(msg.params)
-  buffer.writeArguments(msg.params)
-
-  return buffer.len
+  buffer.addPaddedTags(msg.args)
+  buffer.addArguments(msg.args)
 
 proc dgram*(msg: OscMessage): string =
   ## Serialize the given OscMessage to a new string and return it.
   var dgram: string = newStringOfCap(512)
-  discard dgram.writeMessage(msg)
+  dgram.addMessage(msg)
   return dgram
+
+# TODO: Move into a separate module?
+type
+  OscPackageKind* = enum
+    oscMessage,
+    oscBundle
+
+  OscPacket = object
+    case kind*: OscPackageKind
+    of oscMessage: msg*: OscMessage
+    of oscBundle: bundle*: OscBundle
+
+  OscBundle* = object
+    time*: OscTime
+    contents*: seq[OscPacket]
+
+proc readPacket*(data: string, i: var int): OscPacket
+
+proc readBundle*(data: string, i: var int): OscBundle =
+  if data.len < 12:
+    raise newException(OscParseError, "Bundle is too small")
+  # print(data[i..<i+8])
+  if data[i..<i+8].cmp("#bundle\0") != 0:
+    raise newException(OscParseError, "Invalid bundle header")
+  i += 8
+
+  # Read time tag
+  result.time = readOscTime(data, i)
+
+  # Read all bundle elements
+  while i < data.len:
+    let size = readBe32[int32](data, i)
+    if size < 0:
+      raise newException(OscParseError, "Bundle size must be positive")
+    if i+size > data.len:
+      raise newException(OscParseError, "Not enough bytes to read bundle data")
+    result.contents.add(readPacket(data, i))
+
+
+proc readBundle*(data: string): OscBundle =
+  var i = 0
+  readBundle(data, i)
+
+proc readPacket*(data: string, i: var int) : OscPacket =
+  if i+4 > data.len:
+    raise newException(OscParseError, "Packet is too small")
+  if data[i] == '#':
+    result = OscPacket(kind: oscBundle, bundle: readBundle(data, i))
+  elif data[i] == '/':
+    result = OscPacket(kind: oscMessage, msg: readMessage(data, i))
+  else:
+    raise newException(OscParseError, "Invalid packet header")
+
+proc readPacket*(data: string): OscPacket =
+  var i = 0
+  readPacket(data, i)
+
+
+proc addBundle*(buffer: var string, bundle: OscBundle)
+
+proc addPacket*(buffer: var string, packet: OscPacket) =
+  case packet.kind:
+    of oscMessage:
+      buffer.addMessage(packet.msg)
+    of oscBundle:
+      buffer.addBundle(packet.bundle)
+
+
+proc addBundle*(buffer: var string, bundle: OscBundle) =
+  ## Serialize the given OscBundle to the given buffer.
+  var tmpBuf = newStringOfCap(512)
+  buffer.add("#bundle\0")
+  buffer.addTime(bundle.time)
+  for packet in bundle.contents:
+    tmpBuf.addPacket(packet)
+    buffer.addBe32(tmpBuf.len.int32)
+    buffer.add(tmpBuf)
+
+proc dgram*(msg: OscBundle): string =
+  ## Serialize the given OscBundle to a new string and return it.
+  var dgram: string = newStringOfCap(512)
+  dgram.addBundle(msg)
+  return dgram
+
+  # OscMessage("/hello/address", [1.1, "Hello", b"bytes"])
+
+
+# Prototyping macros/output for more convenient OSC message creation
+import macros
+
+macro oscValues(vals: untyped): untyped =
+  vals.expectKind(nnkBracket)
+  result = newNimNode(nnkBracket)
+  for elem in vals:
+    var pfx = newNimNode(nnkPrefix)
+    var val = elem
+    if elem.kind == nnkPrefix and $elem[0] == "%":
+      pfx.add(ident("%%"))
+      val = elem[1]
+    else:
+      pfx.add(ident("%"))
+    pfx.add(val)
+    result.add(pfx)
+  echo vals.treeRepr
+  echo result.treeRepr
+
+template msg*(addrs: string, arguments: untyped): OscMessage =
+  OscMessage(address: addrs, args: @(oscValues(arguments)))
+
+
+proc `$`*(msg: OscValue): string =
+  case msg.kind:
+    of oscInt: result = $msg.intVal
+    of oscFloat: result = $msg.floatVal
+    of oscString: result = '"' & $msg.strVal & '"'
+    of oscBlob:
+      result.add("%\"")
+      for b in msg.blobVal:
+        result.add("\\x" & b.toHex())
+      result.add("\"")
+      # result = "%\"" & $msg.blobVal & '"'
+    of oscTrue: result = "true"
+    of oscFalse: result = "false"
+    of oscInf: result = "OscInf"
+    of oscNil: result = "OscNil"
+    of oscArray: 
+      result.add("[")
+      var i = 0
+      for e in msg.arrayVal:
+        if i > 0:
+          result.add(", ")
+        result.add($e)
+      result.add("]")
+    of oscTime: result = $msg.timeVal
+    of oscBigInt: result = $msg.bigIntVal
+    of oscDouble: result = $msg.doubleVal
+    of oscChar: result = '\'' & $msg.charVal & '\''
+    of oscColor: result = $msg.colorVal
+    of oscMidi: result = $msg.midiVal
+
+
+proc `$`*(msg: OscMessage): string =
+  result.add("msg(\"")
+  result.add(msg.address)
+  result.add("\", [")
+  var i = 0
+  for elem in msg.args:
+    if i > 0:
+      result.add(", ")
+    result.add($elem)
+    inc i
+  result.add("])")
+
+when isMainModule:
+  echo msg("/hello/address", [1, "Hello", 3.1415, %"bytes"])
+  echo msg("/hello/address", [1, "Hello", 3.141499996185303, %"\x62\x79\x74\x65\x73"])

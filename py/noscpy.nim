@@ -67,13 +67,13 @@ proc message(address: string, args: seq[PyObject]): OscMessage {.exportpy.} =
         # TODO: Raise Proper ValueError from python?
         raise newException(ValueError, "Unsupported python type: " & $pt)
 
-  let msg = NoscMessage(address: address, params: vals)
+  let msg = NoscMessage(address: address, args: vals)
   return OscMessage(msg: msg)
 
 proc arg(self: OscMessage, index: int): PPyObject {.exportpy.} =
   ## Get the i-th argument of the OSC message.
   ## Limited to int32, float32 and string for now.
-  let val = self.msg.params[index]
+  let val = self.msg.args[index]
   # TODO: Add support for more types
   case val.kind:
     of oscInt:

@@ -24,9 +24,9 @@ do:
 
 proc roundTripTest*(name: string, message: OscMessage) {.inline.} =
     var buffer = newStringOfCap(512)
-    let len = buffer.writeMessage(message)
+    buffer.addMessage(message)
     let parsed = parseMessage(buffer)
-    assert len %% 4 == 0, "Message length is not a multiple of 4"
+    assert buffer.len %% 4 == 0, "Message length is not a multiple of 4"
     if parsed != message:
         echo "Roundtrip test failed for " & name
         echo parsed
