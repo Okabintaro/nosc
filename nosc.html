@@ -67,7 +67,6 @@
   status*: uint8
   data1*: uint8
   data2*: uint8">OscMidi</a></li>
-<li><a class="reference" href="#OscParseError" title="OscParseError = object of CatchableError">OscParseError</a></li>
 <li><a class="reference" href="#OscTime" title="OscTime = object">OscTime</a></li>
 <li><a class="reference" href="#OscType" title="OscType = enum
   oscFloat = &quot;f&quot;, oscInt = &quot;i&quot;, oscString = &quot;s&quot;, oscBlob = &quot;b&quot;, oscTrue = &quot;T&quot;,
@@ -148,6 +147,10 @@
 <li><a class="reference" href="#%25%2CopenArray%5BT%5D" title="`%`[T](elements: openArray[T]): OscValue">`%`[T](elements: openArray[T]): OscValue</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">%%
+  <li><a class="reference" href="#%25%25%2Cstring" title="`%%`(v: string): OscValue">`%%`(v: string): OscValue</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">==
   <li><a class="reference" href="#%3D%3D%2COscValue%2COscValue" title="`==`(a, b: OscValue): bool">`==`(a, b: OscValue): bool</a></li>
 
@@ -216,6 +219,9 @@
     </ul>
   </details>
 </li>
+<li>
+  <a class="reference reference-toplevel" href="#19" id="69">Exports</a>
+</li>
 
 </ul>
 
@@ -230,7 +236,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="nosc/stream.html">nosc/stream</a>
+    <a class="reference external" href="nosc/stream.html">nosc/stream</a>, <a class="reference external" href="nosc/errors.html">nosc/errors</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -276,16 +282,6 @@
     MIDI message. Bytes from MSB to LSB are: port id, status byte, data1, data2
     <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-<div id="OscParseError">
-  <dt><pre><a href="nosc.html#OscParseError"><span class="Identifier">OscParseError</span></a> <span class="Other">=</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <span class="Identifier">CatchableError</span></pre></dt>
-  <dd>
-    
-    
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L12" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L12" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -370,8 +366,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L185" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L185" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L186" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L186" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -384,8 +380,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L186" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L186" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L187" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L187" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -421,8 +417,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L103" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L103" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L104" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L104" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -471,8 +467,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L104" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L104" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L105" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L105" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -481,8 +477,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L105" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L105" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L106" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L106" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -491,8 +487,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L102" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L102" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L103" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L103" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -501,8 +497,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L117" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L117" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L118" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L118" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -521,8 +517,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L143" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L143" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L144" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L144" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -531,8 +527,21 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L113" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L113" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="%%-procs-all">
+  <div id="%%,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#%25%25%2Cstring"><span class="Identifier">`%%`</span></a><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="nosc.html#OscValue"><span class="Identifier">OscValue</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L102" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L102" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -544,8 +553,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L147" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L147" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L148" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L148" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -558,8 +567,8 @@
   <dd>
     
     
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L215" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L215" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L216" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L216" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -650,13 +659,13 @@
 </div>
 <div id="parseMessage-procs-all">
   <div id="parseMessage,string">
-  <dt><pre><span class="Keyword">func</span> <a href="#parseMessage%2Cstring"><span class="Identifier">parseMessage</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="nosc.html#OscMessage"><span class="Identifier">OscMessage</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><a href="nosc.html#OscParseError"><span class="Identifier">OscParseError</span></a><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">func</span> <a href="#parseMessage%2Cstring"><span class="Identifier">parseMessage</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="nosc.html#OscMessage"><span class="Identifier">OscMessage</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><a href="nosc/errors.html#OscParseError"><span class="Identifier">OscParseError</span></a><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Parse the given data into an OscMessage object. Raise an OSCParseError if the data is invalid.
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L340" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L340" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L343" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L343" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -695,8 +704,8 @@
   <dd>
     
     I decided to not add a <tt class="docutils literal"><span class="pre"><span class="Operator">%</span></span></tt> overload for float64, since it's not a standard OSC type and you want float32 most of the time.
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L109" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L109" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L110" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L110" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -708,8 +717,8 @@
   <dd>
     
     Convert the given time to an OSC/NTP Timestamp.
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L138" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L138" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L139" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L139" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -724,8 +733,8 @@
 <p>This conversation is lossy. Doing a round-trip will have a deviation of 1 nanosecond. See test/times.nim for the test that shows that.</p>
 <p>NOTE: This does not handle the special case of an immediate time. You have to check using isImmediate yourself.</p>
 
-    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L126" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L126" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Okabintaro/nosc/tree/master/src/nosc.nim#L127" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Okabintaro/nosc/edit/devel/src/nosc.nim#L127" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -762,6 +771,12 @@
 
   </dl>
 </div>
+<div class="section" id="19">
+  <h1><a class="toc-backref" href="#19">Exports</a></h1>
+  <dl class="item">
+    <a href="nosc/errors.html#OscParseError"><span class="Identifier">OscParseError</span></a>
+  </dl>
+</div>
 
   </div>
 </div>
@@ -769,7 +784,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-16 11:35:17 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-09-16 13:06:23 UTC</small>
       </div>
     </div>
   </div>

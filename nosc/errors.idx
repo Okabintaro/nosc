@@ -1,0 +1,2 @@
+nimTitle	errors	nosc/errors.html	module src/nosc/errors		0
+nim	OscParseError	nosc/errors.html#OscParseError	object OscParseError		2
