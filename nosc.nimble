@@ -44,11 +44,17 @@ task staticbuild, "Build statically linked executables using zigcc":
   exec zigcc("src/noscat.nim", "x86_64-macos-none", "macosx")
 
 task py, "Build and test python bindings":
-  exec "nim c --app:lib --mm:arc -d:release --threads:on --out:py/noscpy.so py/noscpy.nim"
+  if hostOS == "windows":
+    exec "nim c --app:lib --mm:arc -d:release --threads:on --tlsEmulation:off --passL:-static --out:py/noscpy.pyd py/noscpy.nim"
+  else:
+    exec "nim c --app:lib --mm:arc -d:release --threads:on --out:py/noscpy.so py/noscpy.nim"
   exec "python3 py/test_bindings.py"
 
 task pyproptest, "Run property tests using python bindings and hypothesis":
-  exec "nim c --app:lib --mm:arc -d:debug --opt:speed --threads:on --out:tests/noscpy.so py/noscpy.nim"
+  if hostOS == "windows":
+    exec "nim c --app:lib --mm:arc -d:debug --opt:speed --threads:on --tlsEmulation:off --passL:-static --out:tests/noscpy.pyd py/noscpy.nim"
+  else:
+    exec "nim c --app:lib --mm:arc -d:debug --opt:speed --threads:on --out:tests/noscpy.so py/noscpy.nim"
   exec "python3 tests/proptest.py"
 
 
