@@ -15,42 +15,44 @@
   - [X] Implement basic serialization
   - [X] Add some benchmarks with benchy
   - [X] Investigate/Commit writeTags optimization
-  - [O] Compile / NimScript support
-    - [O] Simplify writer by using str.len
-    - [ ] Introduce procs for writing time and color
-    - [ ] Port/Copy needed functions and make sure they work in compile time
-      - [ ] swap32, swap64
-      - [ ] addUint32, addUint64
-      - [ ] readUint32, readUint64
-      - [ ] addByte, readByte
-    - [ ] Write some compile time tests?
+  - [X] Compile / NimScript support
+    - [X] Simplify writer by using str.len
+    - [X] Introduce procs for writing time and color
+    - [X] Port/Copy needed functions and make sure they work in compile time
+      - [X] swap32, swap64
+      - [X] addUint32, addUint64
+      - [X] readUint32, readUint64
+      - [X] addByte, readByte
+    - [X] Write some compile time tests
 
   - [O] Comparison/Oracle Test: Compare to python-osc
     - [X] Did some tests with python bindings and nimpy, quite easy to use
     - [X] Finish up basic bindings
-    - [ ] Learn and use hypothesis to generate random messages
-      - [ ] Create a random osc message uisn
-      - [ ] Equality Tests: Serialize with both implementations and compare buffer
+    - [X] Learn and use hypothesis to generate random messages
+      - [O] Create a random osc message
+        - [ ] Only tests 4 standard types, Create tests using all supported types
+          - [ ] python support for all the types
+          - [ ] Create new message strategy
+      - [O] Equality Tests: Serialize with both implementations and compare buffer
+      - [O] Test some other properties from the spec
+        - [X] Message length is always a multiple of 4
+        - [ ] [Try to come up with some other properties](https://fsharpforfunandprofit.com/posts/property-based-testing-2/)
       - [ ] Encoder/Decoder Tests
         - [ ] Combination 1: Encode with nim, decode with python
         - [ ] Combination 2: Encode with python, decode with nim
-        - [ ] Combination 3: Encode with nim, decode with nim
+        - [X] Combination 3: Encode with nim, decode with nim
         - [ ] Combination 4: Encode with python, decode with python
           - Might find bugs in python implementation too
-    - [ ] Maybe also try to generate random messages in nim
+    - [O] Fuzzing: Maybe also try to generate random messages in nim
+      - [O] [drchaos](https://github.com/status-im/nim-drchaos) seems cool
+        - Stack overflow can happen with too many `[[[[[[` in the typeTags
 
 - [ ] Bundles
   - [ ] Read the specs
   - [ ] Port bundle tests from python-osc
   - [ ] Write proptest for bundles
-- [ ] Fun VRC Test/Application
-  - [ ] Jump -> Emissive Hair Color Change
-  - [ ] TrackingData + Geasture -> Color Change? Fly Mode?
 
-  - [ ] JS Support?
-    - [ ] Refactor stream.nim from branch to use jsbinny/js procedures
-
-- [ ] Integration Test: Simple OSC Server <-> Client Based Test
+- [ ] Integration Test?: Simple OSC Server <-> Client Based Test
 - [ ] benchmarks: Count allocations if possible, to see if we can reduce them
 - [ ] Cleanup/Style
   - [ ] message.params -> message.args: They are called arguments in the spec
@@ -58,9 +60,12 @@
 - [ ] Improve Documentation
   - [ ] Learn nimdoc
   - [ ] Add runnable examples
+  - [ ] Small Tutorial, some how-tos
 
 ### Nice to have
 
+- [ ] JS Support?
+  - [ ] Refactor stream.nim from branch to use jsbinny/js procedures
 - [ ] Create nimib with report/explanations
 - [ ] Test JS build?
 - [ ] Interactive Web based builder for an explanation of the OSC Protocl

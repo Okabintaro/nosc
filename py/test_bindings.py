@@ -19,3 +19,10 @@ assert msg.dgram() == msg2.dgram()
 # Print the messages values.
 print(msg.str())
 print(msg.hexprint())
+
+# Error handling/exceptions
+try:
+    noscpy.parse("asdasd")
+except noscpy.NimPyException as e:
+    print("Expected error:")
+    print(e)

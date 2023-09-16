@@ -9,10 +9,7 @@ srcDir = "src"
 bin    = @["noscat", "noscsend"]
 installExt = @["nim"]
 
-requires "nim >= 1.2.2", "nimpy"
-
-
-requires "nim >= 1.2.2"
+requires "nim >= 2.0.0"
 
 task test, "Runs the test suite":
   exec "nim c -r tests/test.nim"
@@ -47,5 +44,12 @@ task staticbuild, "Build statically linked executables using zigcc":
   exec zigcc("src/noscat.nim", "x86_64-macos-none", "macosx")
 
 task py, "Build and test python bindings":
-  exec "nim c --app:lib --mm:arc --opt:size --threads:on --out:py/noscpy.so py/noscpy.nim"
+  exec "nim c --app:lib --mm:arc -d:release --threads:on --out:py/noscpy.so py/noscpy.nim"
   exec "python3 py/test_bindings.py"
+
+task pyproptest, "Run property tests using python bindings and hypothesis":
+  exec "nim c --app:lib --mm:arc -d:debug --opt:speed --threads:on --out:tests/noscpy.so py/noscpy.nim"
+  exec "python3 tests/proptest.py"
+
+taskRequires "py", "nimpy"
+taskRequires "pyproptest", "https://github.com/Okabintaro/nimpy#512e0972a"

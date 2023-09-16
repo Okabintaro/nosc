@@ -10,8 +10,9 @@ nimcache
 *.ilk
 *.out
 .*
+*.so
 
 # custom
 py/temp/*
 bin/
-py/*.so
+__pycache__/

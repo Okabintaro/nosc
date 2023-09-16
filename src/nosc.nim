@@ -1,6 +1,7 @@
 ## This module implements parsing of OSC messages.
 import std/parseutils
 import std/colors
+import std/strutils
 import nosc/stream
 # On windows and nimscript std/times gives an error:
 # nim-2.0.0\lib\windows\winlean.nim(844, 20) Error: VM does not support 'cast' from tyPointer to tyProc
@@ -221,7 +222,12 @@ proc readPaddedStr(payload: string, i: var int): string =
   ## Parse OSC String, returning the length of the \0 padded string.
   # TODO: See if we can parse without allocating the string in parseUntil
   # https://nim-lang.org/docs/manual_experimental.html#view-types
-  let len = payload[i..<payload.high].parseUntil(result, '\0')
+  if i > payload.len:
+    raise newException(OscParseError, "Not enough bytes to read string")
+  let buf = payload[i..<payload.len]
+  let len = buf.parseUntil(result, '\0')
+  if len == 0:
+    raise newException(OscParseError, "Not enough bytes to read string")
   i += padded4(len + 1) # len + 1 for the \0
 
 
@@ -231,6 +237,8 @@ proc readOscTime(payload: string, i: var int): OscTime =
 
 
 proc readOscColor(payload: string, i: var int): OscColor =
+  if i + 4 > payload.len:
+    raise newException(NotEnoughBytes, "Not enough bytes to read color")
   proc readOscColorSlow(payload: string, i: var int): OscColor =
     result.r = payload[i].byte; inc i
     result.g = payload[i].byte; inc i
@@ -246,6 +254,8 @@ proc readOscColor(payload: string, i: var int): OscColor =
 
 
 proc readOscMidi(payload: string, i: var int): OscMidi =
+  if i + 4 > payload.len:
+    raise newException(NotEnoughBytes, "Not enough bytes to read midi")
   proc readOscMidiSlow(payload: string, i: var int): OscMidi =
     result.portId = payload[i].byte; inc i
     result.status = payload[i].byte; inc i
@@ -265,6 +275,7 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
   ## Parse the payload of an OSC message.
   ## Here payload and typeTags are "streams" with i, j as the current position.
   ## Raise an OSCParseError if the data is invalid.
+  const MAX_ARRAY_DEPTH = 64
   var params: seq[OscValue] = @[]
   while j < typeTags.len:
     var value: OscValue
@@ -281,6 +292,8 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         value = OscValue(kind: oscString, strVal: readPaddedStr(payload, i))
       of 'b':
         var length = readBe32[int32](payload, i)
+        if i + length > length:
+          raise newException(NotEnoughBytes, "Not enough bytes to read blob")
         let val: string = payload[i..<i+length]
         value = OscValue(kind: oscBlob, blobVal: val)
         i += padded4(length)
@@ -291,6 +304,8 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
       of 'N':
         value = OscValue(kind: oscNil)
       of '[':
+        if depth > MAX_ARRAY_DEPTH:
+          raise newException(OscParseError, "Too many nested arrays")
         let arr = readArguments(payload, typeTags, i, j, depth+1)
         value = OscValue(kind: oscArray, arrayVal: arr)
       of ']':
@@ -307,6 +322,8 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         value = OscValue(kind: oscInf)
       of 'c':
         let c = readBe32[uint32](payload, i)
+        if c.uint32 > char.high.uint32 or c < char.low.uint32:
+          raise newException(OscParseError, "Invalid character range: " & $c.uint32)
         value = OscValue(kind: oscChar, charVal: c.char)
       of 'r':
         value = OscValue(kind: oscColor, colorVal: readOscColor(payload, i))
@@ -314,15 +331,17 @@ proc readArguments(payload: string, typeTags: string, i: var int, j: var int, de
         value = OscValue(kind: oscMidi, midiVal: readOscMidi(payload, i))
       else:
         # TODO: Add option to surpress this warning or raise error
-        echo "Warning: Unknown type tag: ", t
+        # echo "Warning: Unknown type tag: ", t
         continue
     params.add(value)
 
   return params
 
-proc parseMessage*(data: string, ignore_unknown: bool = false): OscMessage {.raises: [OscParseError].} =
+func parseMessage*(data: string): OscMessage {.raises: [OscParseError].} =
   ## Parse the given data into an OscMessage object.
   ## Raise an OSCParseError if the data is invalid.
+  if data.len < 4:
+    raise newException(OscParseError, "Message is too small")
   if data[0] != '/':
     raise newException(OscParseError, "Invalid address, no `/` in the beginning")
 
@@ -339,8 +358,11 @@ proc parseMessage*(data: string, ignore_unknown: bool = false): OscMessage {.rai
   # NOTE: This is kind of ugly passing i and j as var, but it works
   # Need to read some other parsers to see how they do it
   var j: int = 0
-  let params = readArguments(data, typeTags, k, j)
-  result.params = params
+  try:
+    let params = readArguments(data, typeTags, k, j)
+    result.params = params
+  except NotEnoughBytes:
+    raise newException(OscParseError, "Not enough bytes in payload")
 
 
 proc addTags*(buffer: var string, args: seq[OscValue]) =
