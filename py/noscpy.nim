@@ -35,6 +35,10 @@ proc str(self: OscMessage): string {.exportpy.} =
   ## Return a string representation of the OSC message.
   $self.msg
 
+proc address(self: OscMessage): string {.exportpy.} =
+  ## Return the address of the OSC message.
+  self.msg.address
+
 proc hexprint(self: OscMessage): string {.exportpy.} =
   ## Return a hex pretty-print of the OSC message, for debugging.
   hexPrint(self.msg.dgram())
@@ -91,6 +95,13 @@ proc arg(self: OscMessage, index: int): PPyObject {.exportpy.} =
     else:
       raise newException(ValueError, "Unsupported OSC type: " & $val.kind)
 
+
+proc args(self: OscMessage): seq[PPyObject] {.exportpy.} =
+  ## Return all arguments
+  var list = newSeqOfCap[PPyObject](self.msg.args.len)
+  for i in 0..<self.msg.args.len:
+    list.add(self.arg(i))
+  return list
 
 proc printType(arg: PyObject) {.exportpy.} =
   let pt = baseType(arg.rawPyObj)

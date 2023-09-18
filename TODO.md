@@ -36,11 +36,11 @@
       - [O] Equality Tests: Serialize with both implementations and compare buffer
       - [O] Test some other properties from the spec
         - [X] Message length is always a multiple of 4
-      - [O] Encoder/Decoder Tests
-        - [ ] Combination 1: Encode with nim, decode with python
-        - [ ] Combination 2: Encode with python, decode with nim
+      - [X] Encoder/Decoder Tests
+        - [X] Combination 1: Encode with nim, decode with python
+        - [X] Combination 2: Encode with python, decode with nim
         - [X] Combination 3: Encode with nim, decode with nim
-        - [ ] Combination 4: Encode with python, decode with python
+        - [X] Combination 4: Encode with python, decode with python
           - Might find bugs in python implementation too
     - [O] Fuzzing using [drchaos](https://github.com/status-im/nim-drchaos)
       - [X] Fuzz the parser

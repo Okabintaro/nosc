@@ -2,14 +2,14 @@
 
 from typing import Any
 from hypothesis import (
-    assume,
     given,
     note,
     settings,
 )  # noqa: F401
 import hypothesis.strategies as st
 from pythonosc.osc_message_builder import OscMessageBuilder
-import noscpy
+from pythonosc.osc_message import OscMessage
+import noscpy  # type: ignore
 
 
 # Taken from https://gist.github.com/NeatMonster/c06c61ba4114a2b31418a364341c26c0
@@ -43,17 +43,6 @@ class hexdump:
         return "\n".join(self)
 
 
-def build_pyosc(address: str, args: list[Any]) -> bytes:
-    msg = OscMessageBuilder(address)
-    for arg in args:
-        msg.add_arg(arg)
-    return msg.build().dgram
-
-
-def build_noscpy(address: str, args: list[Any]) -> bytes:
-    return noscpy.message(address, args).dgram()
-
-
 def python_osc_bug():
     # This makes the string not unicode for python-osc?
     msg = OscMessageBuilder("0")
@@ -66,62 +55,119 @@ def surrogates_noscpy():
     # This makes the string not unicode for nosc, surrogates.
     # But it's not a bug?
     print("\ud800")
-    build_noscpy("\ud800", [])
+    # build_noscpy("\ud800", [])
 
 
-# printable_characters = st.characters(whitelist_categories=("Ll", "Lu", "Nd", "Pc"))
+class FakeOscMessage:
+    def __init__(self, addres: str, args: list[Any]) -> None:
+        self.address = addres
+        self.args = args
+
+    def __repr__(self) -> str:
+        return "FakeOscMessage(" + repr(self.address) + ", " + repr(self.args) + ")"
+
+    def dgram_pyosc(self) -> bytes:
+        msg = OscMessageBuilder(self.address)
+        for arg in self.args:
+            msg.add_arg(arg)
+        return msg.build().dgram
+
+    def dgram_nosc(self) -> bytes:
+        return noscpy.message(self.address, self.args).dgram()
+
 
 # Inlcuding a null byte in the address causes problems
 sensible_characters = st.characters(blacklist_characters="\x00", codec="utf-8")
 sensible_text = st.text(alphabet=sensible_characters, min_size=1)
 
-standard_osc_arguments = st.one_of(
+standard_osc_arguments = [
     st.integers(min_value=-2147483648, max_value=2147483647),
     st.floats(width=32, allow_nan=False, allow_infinity=False),
-    st.booleans(),
     st.binary(min_size=1),
     sensible_text,
-)
-osc_message_values = st.lists(standard_osc_arguments)
+]
+
+
+extended_osc_arguments = standard_osc_arguments + [st.booleans()]
+osc_message_values = st.lists(st.one_of(extended_osc_arguments))
+
+
+@st.composite
+def osc_message(draw, address=sensible_text, args=osc_message_values):
+    address = "/" + draw(address)
+    return FakeOscMessage(address, draw(args))
+
+
+def check_eql(dgram1: bytes, dgram2: bytes, names: tuple[str, str] = ("pyosc", "nosc")):
+    if dgram1 != dgram2:
+        note(names[0] + ":\n" + str(hexdump(dgram1)))
+        note(names[1] + ":\n" + str(hexdump(dgram2)))
+        raise AssertionError("Datagrams not equal")
 
 
 @settings(max_examples=1000)
-@given(addr=sensible_text, args=osc_message_values)
-def test_pythonosc_oracle(addr: str, args: list[Any]):
+@given(msg=osc_message())
+def test_pythonosc_oracle(msg: FakeOscMessage):
     """Check if we produce the same datagram as python-osc."""
-    assume("\x00" not in addr)
-    dgram_pyosc = build_pyosc(addr, args)
-    dgram_nosc = build_noscpy(addr, args)
-    if dgram_nosc != dgram_pyosc:
-        note("PyOSC")
-        note(str(hexdump(dgram_pyosc)))
-        note("nosc")
-        note(str(hexdump(dgram_nosc)))
-        assert dgram_nosc == dgram_pyosc
+    dgram_pyosc = msg.dgram_pyosc()
+    dgram_nosc = msg.dgram_nosc()
+    check_eql(dgram_pyosc, dgram_nosc)
 
 
 @settings(max_examples=1000)
-@given(addr=sensible_text, args=osc_message_values)
-def test_len_multiple_of_4(addr: str, args: list[Any]):
-    assume("\x00" not in addr)
-    dgram_nosc = build_noscpy(addr, args)
+@given(fake_msg=osc_message())
+def test_nosc_enc_pyosc_dec(fake_msg: FakeOscMessage):
+    """Check if we can decode nosc messages with python-osc."""
+    dgram_nosc = fake_msg.dgram_nosc()
+    msg = OscMessage(dgram_nosc)
+    assert msg.address == fake_msg.address
+    assert msg.params == fake_msg.args
+
+
+@settings(max_examples=1000)
+@given(fake_msg=osc_message())
+def test_pyosc_enc_nosc_dec(fake_msg: FakeOscMessage):
+    """Check if we can decode python-osc messages with nosc."""
+    dgram_pyosc = fake_msg.dgram_pyosc()
+    msg = parse_noscpy(dgram_pyosc)
+    if isinstance(msg, str):
+        note(str(hexdump(dgram_pyosc)))
+        raise AssertionError(f"Unexpected error: {msg}")
+    assert msg.address() == fake_msg.address
+    assert msg.args() == fake_msg.args
+
+
+@settings(max_examples=1000)
+@given(fake_msg=osc_message())
+def test_pyosc_enc_pyosc_dec(fake_msg: FakeOscMessage):
+    """Test python-osc with itself."""
+    dgram_pyosc = fake_msg.dgram_pyosc()
+    msg = OscMessage(dgram_pyosc)
+    assert msg.address == fake_msg.address
+    assert msg.params == fake_msg.args
+
+
+@settings(max_examples=1000)
+@given(msg=osc_message())
+def test_len_multiple_of_4(msg: FakeOscMessage):
+    dgram_nosc = msg.dgram_nosc()
     if len(dgram_nosc) % 4 != 0:
         note(str(hexdump(dgram_nosc)))
         raise AssertionError(f"Length not multiple of 4, was {len(dgram_nosc)}")
 
 
 @settings(max_examples=1000)
-@given(addr=sensible_text, args=osc_message_values)
-def test_round_trip(addr: str, args: list[Any]):
+@given(fake_msg=osc_message())
+def test_round_trip(fake_msg: FakeOscMessage):
     """Check if we can decode our own messages."""
-    assume("\x00" not in addr)
+    addr, args = fake_msg.address, fake_msg.args
     addr = "/" + addr
     msg = noscpy.message(addr, args)
     dgram = msg.dgram()
     msg2 = parse_noscpy(msg.dgram())
     if isinstance(msg2, str):
         note(str(hexdump(dgram)))
-        raise AssertionError(f"Unexpected error: {msg}")
+        raise AssertionError(f"Unexpected error: {fake_msg}")
     assert msg.str() == msg2.str()
 
 
@@ -151,6 +197,9 @@ def test_fuzz(dgram: bytes):
 
 if __name__ == "__main__":
     test_pythonosc_oracle()
+    test_nosc_enc_pyosc_dec()
+    test_pyosc_enc_nosc_dec()
+    test_pyosc_enc_pyosc_dec()
     test_len_multiple_of_4()
     test_round_trip()
     test_fuzz()

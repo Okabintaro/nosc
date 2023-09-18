@@ -22,6 +22,10 @@ class OscMessage:
 
         Limited to int32, float32 and string for now.
         """
+    def address(self) -> str:
+        """Get the address of the OSC message."""
+    def args(self) -> list[OscValue]:
+        """Get all the arguments of the OSC message."""
     def dgram(self) -> bytes:
         """Returns the OSC message as a datagram."""
     def str(self) -> str:
